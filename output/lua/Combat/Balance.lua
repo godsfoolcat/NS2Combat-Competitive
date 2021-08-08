@@ -3,6 +3,12 @@
 kGestateTime = {}
 kGestateTime[kTechId.Skulk] = 1
 kGestateTime[kTechId.Gorge] = 2
+if kProwlerCost then
+	kGestateTime[kTechId.Prowler] = 3
+end
+if kChangelingCost then
+	kGestateTime[kTechId.Changeling] = 3
+end
 kGestateTime[kTechId.Lerk] = 3
 kGestateTime[kTechId.Fade] = 4
 kGestateTime[kTechId.Onos] = 5

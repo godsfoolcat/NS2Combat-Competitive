@@ -44,6 +44,12 @@ XpValues = {}
 XpValues["Marine"] = 0
 XpValues["Skulk"] = 0
 XpValues["Gorge"] = 15
+if kProwlerCost then
+	XpValues["Prowler"] = 25
+end
+if kChangelingCost then
+	XpValues["Changeling"] = 15
+end
 XpValues["Lerk"] = 25
 XpValues["Fade"] = 50
 XpValues["Onos"] = 75
@@ -265,7 +271,9 @@ table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.Armor3,				"arm3",	
 table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.Resupply,				"resup",			"Resupply",			kTechId.MedPack , 	       		Resupply,    		nil, 	                    1, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))
 if not kCombatCompMode then
 	table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.ImprovedResupply,	"impresup",			"Improved Resupply",kTechId.AmmoPack , 	    ImprovedResupply,    		kCombatUpgrades.Resupply, 	2, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))
-	table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.Scanner,				"scan",				"Scanner",			kTechId.Scan, 			   		Scan, 	      		kCombatUpgrades.Welder,                     	2, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))
+	if not PulseGrenadeScan then
+		table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.Scanner,				"scan",				"Scanner",			kTechId.Scan, 			   		Scan, 	      		kCombatUpgrades.Welder,                     	2, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))
+	end
 	table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.Catalyst,				"cat",				"Catalyst",			kTechId.CatPack , 	       		Catalyst,  			kCombatUpgrades.FastSprint, 	                    1, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))
 	table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.EMP,   				"emp",			    "EMP-Taunt",		kTechId.MACEMP , 	       		EMP,        		nil, 	                   99, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))
 	table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.FastReload,   		    "fastreload",		"Fast Reload",		kTechId.AdvancedWeaponry, 		FastReload,   	    kCombatUpgrades.FastSprint, 	                    2, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))
@@ -280,9 +288,19 @@ local kOnosHardCapScale = 1/7
 
 -- Parameters:        				team,	 upgradeId, 							upgradeTextCode, 	upgradeDesc, 		upgradeTechId, 					upgradeFunc, 		requirements, 				levels, upgradeType,                refundUpgrade,	hardCapScale,			mutuallyExclusive, needsNearComm
 table.insert(UpsList, BuildUpgrade("Alien", kCombatUpgrades.Gorge,					"gorge",			"Gorge",			kTechId.Gorge, 					nil, 				nil, 						1, 		kCombatUpgradeTypes.Class,  true,			kGorgeHardCapScale,		nil))
+if kProwlerCost then
+	local kProwlerHardCapScale = 1/3
+	table.insert(UpsList, BuildUpgrade("Alien", kCombatUpgrades.Prowler,					"prowler",				"Prowler",				kTechId.Prowler, 					nil, 				nil,              	kProwlerCost, 		kCombatUpgradeTypes.Class,  true,			kProwlerHardCapScale,	    nil, true))
+end
+
+if kChangelingCost then
+	local kChangelingHardCapScale = 1/3
+	table.insert(UpsList, BuildUpgrade("Alien", kCombatUpgrades.Changeling,"changeling","Changeling",	kTechId.Changeling,nil, nil,              	kChangelingCost, 		kCombatUpgradeTypes.Class,  true,			kChangelingHardCapScale,	    nil, true))
+end
 table.insert(UpsList, BuildUpgrade("Alien", kCombatUpgrades.Lerk,					"lerk",				"Lerk",				kTechId.Lerk, 					nil, 				nil,              	kLerkCost, 		kCombatUpgradeTypes.Class,  true,			kLerkHardCapScale,		nil))
 table.insert(UpsList, BuildUpgrade("Alien", kCombatUpgrades.Fade,					"fade",				"Fade",				kTechId.Fade, 					nil, 				nil,              	kFadeCost, 		kCombatUpgradeTypes.Class,  true,			kFadeHardCapScale,		nil))
 table.insert(UpsList, BuildUpgrade("Alien", kCombatUpgrades.Onos,					"onos",				"Onos",				kTechId.Onos, 					nil, 				nil,              	kOnosCost, 		kCombatUpgradeTypes.Class,  true,			kOnosHardCapScale,	    nil, true))
+
 
 -- Tech
 table.insert(UpsList, BuildUpgrade("Alien", kCombatUpgrades.Carapace,				"cara",				"Carapace",			kTechId.Carapace, 				nil, 				nil, 						1, 		kCombatUpgradeTypes.Tech,   false,			0,			nil))

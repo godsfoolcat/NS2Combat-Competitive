@@ -46,4 +46,8 @@ kCombatLocaleMessages["enUS"]["COMBAT_EXOSUIT_RAILGUN_DESCRIPTION"] = "Railgun w
 kCombatLocaleMessages["enUS"]["COMBAT_EXOSUIT_DUALRAILGUN_DESCRIPTION"] = "Dual Railguns for the Exosuit."
 kCombatLocaleMessages["enUS"]["COMBAT_CLUSTERGRENADE_DESCRIPTION"] = "You get 2 Cluster Grenades. Requires Welder."
 kCombatLocaleMessages["enUS"]["COMBAT_GASGRENADE_DESCRIPTION"] = "You get 2 Gas Grenades. Requires Welder."
-kCombatLocaleMessages["enUS"]["COMBAT_PULSEGRENADE_DESCRIPTION"] = "You get 2 Pulse Grenades. Requires Welder."
+if PulseGrenadeScan then
+	kCombatLocaleMessages["enUS"]["COMBAT_PULSEGRENADE_DESCRIPTION"] = "You get 2 Pulse Scan Grenades. Requires Welder."
+else
+	kCombatLocaleMessages["enUS"]["COMBAT_PULSEGRENADE_DESCRIPTION"] = "You get 2 Pulse Grenades. Requires Welder."
+end

@@ -114,6 +114,12 @@ kDualMinigunCost = generalCost
 
 -- Used by alien buy menu
 kGorgeCost = 2
+if kProwlerCost then
+    kProwlerCost = 3
+end
+if kChangelingCost then
+    kChangelingCost = 2
+end
 kLerkCost = 4
 kFadeCost = 6
 kOnosCost = 8
@@ -158,3 +164,6 @@ if not kCombatCompMode then
     table.insert(kCombatAlienTierThreeTechIds, kTechId.Xenocide)
 end
 
+if kProwlerCost then
+    table.insert(kCombatAlienTierThreeTechIds, kTechId.AcidSpray)
+end
