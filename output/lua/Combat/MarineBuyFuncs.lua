@@ -6,10 +6,10 @@ function CombatMarineBuy_GetHeadlines()
     local headlines = {
         "Support",
         "Weapons",        
-        "Offense",
-        "Defense",
-        "Agility",
-        "Misc.",
+        "Weapon Ups",
+        "Armor Ups",
+        "Class Ups",
+        "Grenades",
     }
     
     return headlines
@@ -23,12 +23,12 @@ function CombatMarineBuy_GUISortUps(upgradeList)
     local layoutList = {
         -- 0, Support
         "nextRow",
-        kTechId.Welder,
+        kTechId.MedPack,
+        kTechId.AmmoPack,
+        kTechId.CatPack,
         kTechId.Scan,
         kTechId.LayMines,
-        kTechId.ClusterGrenade,
-        kTechId.GasGrenade,
-        kTechId.PulseGrenade,
+        kTechId.Welder,
         "nextRow",
 
         -- 1, Weapons
@@ -38,30 +38,30 @@ function CombatMarineBuy_GUISortUps(upgradeList)
         kTechId.HeavyMachineGun,
         "nextRow",
         
-        -- 2, Offense
+        -- 2, Weapon Upgrades
         kTechId.Weapons1,
         kTechId.Weapons2,
         kTechId.Weapons3,
+        kTechId.AdvancedWeaponry,
         "nextRow",
 
-        -- 3, Defense
+        -- 3, Armor Upgrades
         kTechId.Armor1,
         kTechId.Armor2,
         kTechId.Armor3,
         "nextRow",
 
-        -- 4, Agility
-        kTechId.PhaseTech,     
-        kTechId.Jetpack,     
-        kTechId.CatPack,
-        kTechId.AdvancedWeaponry,
-        "nextRow",
-
-        -- 5, Misc.
-        kTechId.MedPack,
-        kTechId.AmmoPack,
+        -- 4, Class Upgrades
+        kTechId.Jetpack,
         kTechId.DualMinigunExosuit,
         kTechId.DualRailgunExosuit,
+        kTechId.PhaseTech,
+        "nextRow",
+
+        -- 5, grenades
+        kTechId.ClusterGrenade,
+        kTechId.GasGrenade,
+        kTechId.PulseGrenade,
 
     }
     

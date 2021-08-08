@@ -47,11 +47,11 @@ kCombatRebalanceInterval = 300
 -- Spawning radius and retries.
 kSpawnMaxRetries = 50
 kSpawnMinDistance = 3
-kSpawnMaxDistance = 80
-kSpawnMaxVertical = 15
+kSpawnMaxDistance = 70
+kSpawnMaxVertical = 10
 kSpawnArmoryMaxRetries = 200
-kArmorySpawnMinDistance = 10
-kArmorySpawnMaxDistance = 80
+kArmorySpawnMinDistance = 7
+kArmorySpawnMaxDistance = 60
 
 -- By default, Aliens win after a certain amount of time...
 -- Specified in seconds...
@@ -73,7 +73,7 @@ kPropEffect = "vortex_destroy"
 kPropEffectTimer = 2
 
 -- Spawn protection
-kCombatSpawnProtectDelay = 0.5
+kCombatSpawnProtectDelay = 0.1
 kCombatMarineSpawnProtectTime = 2
 -- nano shield = spawn Protection
 kNanoShieldDuration = kCombatMarineSpawnProtectTime
@@ -94,7 +94,7 @@ kPlayerHealXpRate = 0.2
 kHydraKillTime = 30
 
 -- Time delay for exo suits to power up.
-kExoPowerUpTime = 2.5
+kExoPowerUpTime = 3
 
 -- Override the costs of each of our entries.
 -- These won't take effect on the client side until we import this file into the client side mods
@@ -113,16 +113,16 @@ kMinigunCost = generalCost
 kDualMinigunCost = generalCost
 
 -- Used by alien buy menu
-kGorgeCost = 2
+kGorgeCost = 1
 if kProwlerCost then
     kProwlerCost = 3
 end
 if kChangelingCost then
-    kChangelingCost = 2
+    kChangelingCost = 3
 end
 kLerkCost = 4
-kFadeCost = 6
-kOnosCost = 8
+kFadeCost = 5
+kOnosCost = 7
 
 kCarapaceCost = generalCost
 kRegenerationCost = generalCost
