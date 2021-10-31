@@ -109,6 +109,10 @@ local function SwitchToPrimary(marine)
         marine:SetActiveWeapon(HeavyMachineGun.kMapName, true)
     elseif marine:GetWeapon( GrenadeLauncher.kMapName ) then
         marine:SetActiveWeapon(GrenadeLauncher.kMapName, true)
+    elseif kCannonCost and marine:GetWeapon( Cannon.kMapName ) then
+        marine:SetActiveWeapon(Cannon.kMapName, true)
+    elseif kSubmachinegunCost and marine:GetWeapon( Submachinegun.kMapName ) then
+        marine:SetActiveWeapon(Submachinegun.kMapName, true)
     end
 end
 
@@ -132,8 +136,12 @@ local function GetEffectiveRangeForPrimary(marine)
     elseif marine:GetWeapon( Flamethrower.kMapName ) then
         return 8.0
     elseif marine:GetWeapon( HeavyMachineGun.kMapName ) then
-        return 15.0
+        return 20.0
     elseif marine:GetWeapon( GrenadeLauncher.kMapName ) then
+        return 20.0
+    elseif kCannonCost and marine:GetWeapon( Cannon.kMapName ) then
+        return 20.0
+    elseif kSubmachinegunCost and marine:GetWeapon( Submachinegun.kMapName ) then
         return 20.0
     end
     return 0.0
@@ -455,43 +463,43 @@ end
 ------------------------------------------
 kMarineBrainActions =
 {
-    function(bot, brain)
-
-        local name = "grabWeapons"
-
-        local marine = bot:GetPlayer()
-        local haveGoodWeapon = HasGoodWeapon(marine)
-		-- don't use GetEntitiesWithinRangeAreVisible due to thrashing
-        local weapons = GetEntitiesWithinRange( "Shotgun", marine:GetOrigin(), 20, true )
-        table.copy(GetEntitiesWithinRange( "HeavyMachineGun", marine:GetOrigin(), 20, true ), weapons, true)
-        table.copy(GetEntitiesWithinRange( "Flamethrower", marine:GetOrigin(), 20, true ), weapons, true)
-
-        -- ignore shotguns owned by someone already
-        weapons = FilterArray( weapons, function(ent) return ent:GetParent() == nil end )
-        local bestDist, bestGun = GetNearestFiltered(marine:GetOrigin(), weapons)
-
-        local weight = 0.0
-        if not haveGoodWeapon and bestGun ~= nil then
-            weight = EvalLPF( bestDist, {
-                    {0.0  , 2.0} , 
-                    {3.0  , 2.0} , 
-                    {5.0  , 1.0}  , 
-                    {20.0 , 0.0}
-                    })
-        end
-		
-        return { name = name, weight = weight,
-                perform = function(move)
-                    if bestGun ~= nil then
-                        PerformMove( marine:GetOrigin(), bestGun:GetOrigin(), bot, brain, move )
-                        bot:GetMotion():SetDesiredViewTarget( bestGun:GetOrigin() )
-                        if bestDist < 1.0 then
-                            SwitchToPrimary(marine)
-                            move.commands = AddMoveCommand( move.commands, Move.Drop )
-                        end
-                    end
-                end }
-    end,
+--    function(bot, brain)
+--
+--        local name = "grabWeapons"
+--
+--        local marine = bot:GetPlayer()
+--        local haveGoodWeapon = HasGoodWeapon(marine)
+--		-- don't use GetEntitiesWithinRangeAreVisible due to thrashing
+--        local weapons = GetEntitiesWithinRange( "Shotgun", marine:GetOrigin(), 20, true )
+--        table.copy(GetEntitiesWithinRange( "HeavyMachineGun", marine:GetOrigin(), 20, true ), weapons, true)
+--        table.copy(GetEntitiesWithinRange( "Flamethrower", marine:GetOrigin(), 20, true ), weapons, true)
+--
+--        -- ignore shotguns owned by someone already
+--        weapons = FilterArray( weapons, function(ent) return ent:GetParent() == nil end )
+--        local bestDist, bestGun = GetNearestFiltered(marine:GetOrigin(), weapons)
+--
+--        local weight = 0.0
+--        if not haveGoodWeapon and bestGun ~= nil then
+--            weight = EvalLPF( bestDist, {
+--                    {0.0  , 2.0} ,
+--                    {3.0  , 2.0} ,
+--                    {5.0  , 1.0}  ,
+--                    {20.0 , 0.0}
+--                    })
+--        end
+--
+--        return { name = name, weight = weight,
+--                perform = function(move)
+--                    if bestGun ~= nil then
+--                        PerformMove( marine:GetOrigin(), bestGun:GetOrigin(), bot, brain, move )
+--                        bot:GetMotion():SetDesiredViewTarget( bestGun:GetOrigin() )
+--                        if bestDist < 1.0 then
+--                            SwitchToPrimary(marine)
+--                            move.commands = AddMoveCommand( move.commands, Move.Drop )
+--                        end
+--                    end
+--                end }
+--    end,
 
     function(bot, brain)
 
@@ -787,7 +795,9 @@ kMarineBrainActions =
                 if sdb:Get("welderReady") then
                     weight = weight * 2
                 end
-				
+                if (weldTarget:isa("PowerPoint")) then
+                    weight = 0.0
+                end
 				-- if you're getting damaged by infestation, make killing a cyst be top priority (which is weight 0.9)
 				if weldTarget.isCorroded then
 					weight = math.min(0.85, weight)
@@ -1430,49 +1440,50 @@ kMarineBrainActions =
     end,
 
     -- nothing to build, except player sentries
-    --function(bot, brain)
-    --
-    --    local name = "buildThings"
-    --    local marine = bot:GetPlayer()
-    --    local sdb = brain:GetSenses()
-    --    local weight = 0.0
-    --
-    --    local targetData = sdb:Get("nearestBuildable")
-    --    local target = targetData.target
-    --    local dist = targetData.distance
-    --
-    --    if target then
-    --        local targetId = target:GetId()
-    --        if targetId then
-	--			local isAssigned = brain.teamBrain:GetIsBotAssignedTo(bot, {entId=targetId})
-    --            local numOthers = brain.teamBrain:GetNumOthersAssignedToEntity( targetId, bot )
-    --            if ((numOthers == nil) or numOthers >= 1) and not isAssigned then
-    --                weight = 0.0
-    --            else
-    --                weight = 0.06 -- slighty above explore, below guard humans unless close
-    --
-    --                -- but with a close bonus
-    --                if dist < 10 or isAssigned then
-    --                    weight = 0.12 -- above the closeBonus of guardHuman
-    --                end
-    --            end
-    --        end
-    --    end
-    --
-    --    weight = weight + weight * bot.helpAbility
-    --
-    --    return { name = name, weight = weight,
-    --        perform = function(move)
-    --            if target then
-    --                brain.teamBrain:UnassignBot(bot)
-    --                brain.teamBrain:AssignBotToEntity( bot, target:GetId() )
-    --                PerformUse( marine, target, bot, brain , move )
-    --                bot:SendTeamMessage("I'll build the " .. target:GetMapName() .. " in " .. target:GetLocationName(), 120)
-    --                move.commands = AddMoveCommand( move.commands, Move.MovementModifier )
-	--
-    --            end
-    --        end }
-    --end,
+    function(bot, brain)
+
+        local name = "buildThings"
+        local marine = bot:GetPlayer()
+        local sdb = brain:GetSenses()
+        local weight = 0.0
+        
+        local targetData = sdb:Get("nearestBuildable")
+        local target = targetData.target
+        local dist = targetData.distance
+
+        if target and not target:isa("PowerPoint") then
+            local targetId = target:GetId()
+            if targetId then
+				local isAssigned = brain.teamBrain:GetIsBotAssignedTo(bot, {entId=targetId})
+                local numOthers = brain.teamBrain:GetNumOthersAssignedToEntity( targetId, bot )
+                if ((numOthers == nil) or numOthers >= 1) and not isAssigned then
+                    weight = 0.0
+                else
+                    weight = 0.06 -- slighty above explore, below guard humans unless close
+
+                    -- but with a close bonus
+                    if dist < 10 or isAssigned then
+                        weight = 0.12 -- above the closeBonus of guardHuman
+                    end
+                end
+            end
+            
+            weight = weight + weight * bot.helpAbility
+        end
+
+
+        return { name = name, weight = weight,
+            perform = function(move)
+                if target then
+                    brain.teamBrain:UnassignBot(bot)
+                    brain.teamBrain:AssignBotToEntity( bot, target:GetId() )
+                    PerformUse( marine, target, bot, brain , move )
+                    bot:SendTeamMessage("I'll build the " .. target:GetMapName() .. " in " .. target:GetLocationName(), 120)
+                    move.commands = AddMoveCommand( move.commands, Move.MovementModifier )
+
+                end
+            end }
+    end,
     
     ------------------------------------------
     --
@@ -1500,31 +1511,6 @@ kMarineBrainActions =
     end
 
 }
-
-------------------------------------------
---  Active threats - ie. they can hurt you
---  Only load balance if we cannot see the target
-------------------------------------------
-local function EvalActiveUrgenciesTable(numOthers)
-    local activeUrgencies =
-    {
-        [kMinimapBlipType.Embryo] = numOthers >= 1 and 0.1 or 1.0,
-        [kMinimapBlipType.Hydra] = numOthers >= 2  and 0.1 or 2.0,
-        [kMinimapBlipType.Whip] = numOthers >= 2   and 0.1 or 3.0,
-        [kMinimapBlipType.Skulk] = numOthers >= 2  and 0.1 or 4.0,
-        [kMinimapBlipType.Gorge] =  numOthers >= 2  and 0.1 or 3.0,
-        [kMinimapBlipType.Drifter] = numOthers >= 1  and 0.1 or 1.0,
-        [kMinimapBlipType.Lerk] = numOthers >= 2   and 0.1 or 5.0,
-        [kMinimapBlipType.Fade] = numOthers >= 3   and 0.1 or 6.0,
-        [kMinimapBlipType.Onos] =  numOthers >= 4  and 0.1 or 7.0,
-        [kMinimapBlipType.Marine] = numOthers >= 2 and 0.1 or 6.0,
-        [kMinimapBlipType.JetpackMarine] = numOthers >= 2 and 0.1 or 5.0,
-        [kMinimapBlipType.Exo] =  numOthers >= 4  and 0.1 or 5.0,
-        [kMinimapBlipType.Sentry]  = numOthers >= 2   and 0.1 or 5.0
-    }
-
-    return activeUrgencies
-end
 
 ------------------------------------------
 --  More urgent == should really attack it ASAP
@@ -1594,6 +1580,10 @@ local function GetAttackUrgency(bot, mem)
         [kMinimapBlipType.MAC] =                numOthers >= 1 and 0.2 or 0.4,
     }
 
+    if table.contains(kMinimapBlipType, "HadesDevice") then
+        passiveUrgencies[kMinimapBlipType.HadesDevice] = numOthers >= 2  and 0.4 or 0.95
+    end
+
     if bot.brain.debug then
         if mem.btype == kMinimapBlipType.Hive then
             Print("got Hive, urgency = %f", passiveUrgencies[mem.btype])
@@ -1608,6 +1598,34 @@ local function GetAttackUrgency(bot, mem)
             return nil
         end
         return passiveUrgencies[ mem.btype ] + closeBonus * 0.6
+    end
+
+    ------------------------------------------
+    --  Active threats - ie. they can hurt you
+    --  Only load balance if we cannot see the target
+    ------------------------------------------
+    function EvalActiveUrgenciesTable(numOthers)
+        local activeUrgencies =
+        {
+            [kMinimapBlipType.Embryo] = numOthers >= 1 and 0.1 or 1.0,
+            [kMinimapBlipType.Hydra] = numOthers >= 2  and 0.1 or 2.0,
+            [kMinimapBlipType.Whip] = numOthers >= 2   and 0.1 or 3.0,
+            [kMinimapBlipType.Skulk] = numOthers >= 2  and 0.1 or 4.0,
+            [kMinimapBlipType.Gorge] =  numOthers >= 2  and 0.1 or 3.0,
+            [kMinimapBlipType.Drifter] = numOthers >= 1  and 0.1 or 1.0,
+            [kMinimapBlipType.Lerk] = numOthers >= 2   and 0.1 or 5.0,
+            [kMinimapBlipType.Fade] = numOthers >= 3   and 0.1 or 6.0,
+            [kMinimapBlipType.Onos] =  numOthers >= 4  and 0.1 or 7.0,
+            [kMinimapBlipType.Marine] = numOthers >= 2 and 0.1 or 6.0,
+            [kMinimapBlipType.JetpackMarine] = numOthers >= 2 and 0.1 or 5.0,
+            [kMinimapBlipType.Exo] =  numOthers >= 4  and 0.1 or 5.0,
+            [kMinimapBlipType.Sentry]  = numOthers >= 2   and 0.1 or 5.0
+        }
+        if table.contains(kMinimapBlipType, "Prowler") then
+            activeUrgencies[kMinimapBlipType.Prowler] = numOthers >= 2 and 0.1 or 4.0
+        end
+        
+        return activeUrgencies
     end
 
     -- Optimization: we only need to do visibilty check if the entity type is active
@@ -1813,7 +1831,7 @@ function CreateMarineBrainSenses()
             local dist, exo = GetMinTableEntry( exos,
                 function(exo)
                     assert( exo ~= nil )
-                    if exo:GetLayout() == "MinigunMinigun" and exo:GetIsValidRecipient(marine) and exo:GetHealthScalar() > 0.8 then
+                    if exo:GetIsValidRecipient(marine) and exo:GetHealthScalar() > 0.8 then
                         local dist,_ = GetPhaseDistanceForMarine( marine, exo:GetOrigin(), db.bot.brain.lastGateId )
 
                         -- Weigh our previous nearest a bit better, to prevent thrashing
@@ -1970,4 +1988,172 @@ function CreateMarineBrainSenses()
 
     return s
 
+end
+
+-- are we running combat?
+if kCombatVersion then
+
+    local function GotRequirements(player, upgrade)
+        if upgrade then
+            local requirements = upgrade:GetRequirements()
+            -- does this up needs other ups??
+            if requirements then
+                local requiredUpgrade = GetUpgradeFromId(requirements)
+                return player:GetHasCombatUpgrade(requiredUpgrade:GetId())
+            else
+                return true
+            end
+        end
+        return false
+    end
+    
+    local function CreateBuyCombatUpgradeAction(techId, weightIfCanDo)
+        return function(bot, brain)
+            local name = "combat_" .. EnumToString( kTechId, techId )
+            local weight = 0.0
+            local upgrade = GetUpgradeFromTechId(techId)
+            local player = bot:GetPlayer()
+            
+            -- limit how often we can try to buy things
+            if upgrade ~= nil and not(bot.lastCombatBuyAction and bot.lastCombatBuyAction + 5 > Shared.GetTime()) then
+                local resources = player:GetResources()
+                local cost = upgrade:GetLevels()
+                local hasUpgrade = player:GetHasCombatUpgrade(upgrade:GetId())
+                local doable = GotRequirements(player, upgrade)
+                local hardCapped = upgrade:GetIsHardCappedForBots(player)
+        
+                if not hardCapped and doable and not hasUpgrade and cost <= resources then
+                    weight = weightIfCanDo
+                end
+    
+                if bot.helpAbility < 0.1 then
+                    -- no welder
+                    if techId == kTechId.Welder then
+                        weight = 0.0
+                    end
+                end
+    
+                if bot.trickyAbility then
+                    -- save res for exo
+                    if techId == kTechId.HeavyMachineGun
+                            or techId == kTechId.Flamethrower
+                            or techId == kTechId.GrenadeLauncher
+                            or techId == kTechId.Shotgun
+                            or techId == kTechId.Jetpack
+                    then
+                        weight = 0.0
+                    end
+    
+                    if kCannonCost and techId == kTechId.Cannon then
+                        weight = 0.0
+                    end
+                    if kCannonCost and techId == kTechId.Submachinegun then
+                        weight = 0.0
+                    end
+                    if kShieldGeneratorCost and techId == kTechId.ShieldGenerator then
+                        weight = 0.0
+                    end
+                end
+                
+                if bot.aimAbility < 0.5 then
+                    -- go for flamethrower
+                    if techId == kTechId.HeavyMachineGun
+                            or techId == kTechId.GrenadeLauncher then
+                        weight = 0.0
+                    end
+                    if kCannonCost and techId == kTechId.Cannon then
+                        weight = 0.0
+                    end
+                    if kSubmachinegunCost and techId == kTechId.Submachinegun then
+                        weight = 0.0
+                    end
+                end
+    
+    
+                if kCannonCost and player:GetHasCombatUpgrade(kTechId.Cannon) then
+                    if techId == kTechId.HeavyMachineGun
+                            or techId == kTechId.Flamethrower
+                            or techId == kTechId.GrenadeLauncher
+                            or techId == kTechId.Shotgun
+                    then
+                        weight = 0.0
+                    end
+    
+                    if kSubmachinegunCost and techId == kTechId.Submachinegun then
+                        weight = 0.0
+                    end
+                end
+                if kSubmachinegunCost and player:GetHasCombatUpgrade(kTechId.Submachinegun) then
+                    if techId == kTechId.HeavyMachineGun
+                            or techId == kTechId.Flamethrower
+                            or techId == kTechId.GrenadeLauncher
+                            or techId == kTechId.Shotgun
+                    then
+                        weight = 0.0
+                    end
+    
+                    if kCannonCost and techId == kTechId.Cannon then
+                        weight = 0.0
+                    end
+                end
+            end
+            
+            return {
+                name = name, weight = weight,
+                perform = function(move)
+                    bot.lastCombatBuyAction = Shared.GetTime()
+                    
+                    -- todo: support multiple upgrades at a time...?
+                    --Log("Trying to upgrade " .. upgrade:GetDescription())
+                    local upgradeTable = {}
+                    table.insert(upgradeTable, upgrade)
+                    player:CoEnableUpgrade(upgradeTable)
+                end
+            }
+        end
+    end
+    
+	local random = math.random()
+    local random2 = math.random()
+	
+    -- todo: don't block movement!!
+	-- regen
+	table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.MedPack,		10.0 + random ))
+	
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Weapons1,	4.5 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Weapons2,	4.0 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Weapons3,	3.5 + random ))
+    
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Armor1,		5.0 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Armor2,		4.5 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Armor3,      4.0 + random ))
+    
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Scan,        3.0 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Welder,      4.0 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.CatPack,     3.0 + random ))
+    -- fast sprint
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.PhaseTech, 		2.0 + random ))
+    -- fast reload
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.AdvancedWeaponry,	4.0 + random ))
+    
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Shotgun,     4.0 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Flamethrower,     1.0 + random ))
+		table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.HeavyMachineGun,     1.0 + random ))
+		--table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.GrenadeLauncher,     1.0 + random2 ))
+    
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Jetpack, 2.5 + random ))
+    
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.DualMinigunExosuit, 4.0 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.DualRailgunExosuit, 4.0 + random2 ))
+    
+    if kShieldGeneratorCost then
+        table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.ShieldGenerator, 4.0 + random2 ))
+    end
+    if kCannonCost then
+        table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Cannon, 4.0 + random2 ))
+    end
+    if kSubmachinegunCost then
+        table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Submachinegun, 4.0 + random2 ))
+    end
+    
 end

@@ -47,7 +47,6 @@ function UpdateUpgradeCountsForTeam(gameRules, teamIndex)
 
 		-- Send any updates to all players
 		if upgradeCount ~= oldCounts[upgradeId] then
-			local teamPlayers = GetEntitiesForTeam("Player", teamIndex)
 			for _, teamPlayer in ipairs(teamPlayers) do
 				SendCombatUpgradeCountUpdate(teamPlayer, upgradeId, upgradeCount)
 			end
@@ -219,48 +218,6 @@ function NS2Gamerules:OnUpdate(timePassed)
 
 end
 
-function NS2Gamerules_GetUpgradedDamage(attacker, doer, damage, damageType)
-
-	local damageScalar = 1
-
-	if attacker then
-
-		-- Damage upgrades only affect weapons, not ARCs, Sentries, MACs, Mines, etc.
-		if doer:isa("Weapon") or doer:isa("Grenade") or doer:isa("Minigun") or doer:isa("Railgun") then
-
-			if(GetHasTech(attacker, kTechId.Weapons3, true)) then
-
-				damageScalar = kWeapons3DamageScalar
-
-			elseif(GetHasTech(attacker, kTechId.Weapons2, true)) then
-
-				damageScalar = kWeapons2DamageScalar
-
-			elseif(GetHasTech(attacker, kTechId.Weapons1, true)) then
-
-				damageScalar = kWeapons1DamageScalar
-
-			end
-
-		end
-
-	end
-
-	return damage * damageScalar
-
-end
-
-local function StartCountdown(self)
-
-	self:ResetGame()
-
-	self:SetGameState(kGameState.Countdown)
-	self.countdownTime = kCountDownLength
-
-	self.lastCountdownPlayed = nil
-
-end
-
 local kCombatPregameLength = 15
 function NS2Gamerules:GetPregameLength()
 
@@ -315,7 +272,6 @@ function NS2Gamerules:CheckGameStart()
 		  (Shared.GetCheatsEnabled() and (team1Players > 0 or team2Players > 0)) then
 
 			if self:GetGameState() < kGameState.PreGame then
-				--StartCountdown(self)
                 self:SetGameState(kGameState.PreGame)
 				
                 -- TODO: Put this on the client side so we can translate it

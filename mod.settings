@@ -1,34 +1,41 @@
-name        = "[beta] Meteru's NS2 Combat Fork"
+name        = "Meteru's NS2 Combat Fork"
 source_dir  = "source"
 output_dir  = "output"
 description = [=[NS2Combat: A Combat-style mod for Natural Selection 2!
-Beta version
 
 This is used with permission, and is licensed under the MIT License. For more info, check out https://github.com/ailmanki/NS2Combat
 
 Bringing back the old and out of date Combat mod :)
 
-Many thanks to Shrimm for the continuous quality improvements.
+- Many thanks to Shrimm for the continuous quality improvements.
 
-ModID: 93f05553
+ModID: 8AE61F8F
 
 Compatible mods:
 [list]
-[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=1951316468] Buy Menu Hotkeys [/url]
+[*][strike] [url=steamcommunity.com/sharedfiles/filedetails/?id=1951316468] Buy Menu Hotkeys [/url][/strike] 
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2270880361] Changeling [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2108455550] Enhanced Ragdoll [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=1132771326] Enhanced Spectator [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=820494522] Exosuit Boombox [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=1934484465] Clog Balance [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2230489630] Combat Equipment [/url]
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2624385675] Devour [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=1079247507] Fade Void Rocket [/url]
-[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2073756005] Gorge Toys [/url]
+[*] [strike][url=steamcommunity.com/sharedfiles/filedetails/?id=2073756005] Gorge Toys [/url][/strike]
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2534292147] Gorge Toys (Beta) [/url]
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2635356707] Katana [/url]
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2580758324] Machinegun [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2332684940] Meteru's Local Talk Extended Fork [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2330402722] Rebirth Bots [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2295815997] Onos Rework Mod [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=1173477213] Personal Shield Generator [/url]
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2550512318] Prowler Remake (beta) [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2368743395] Pulse Grenade Scan Mod [/url]
 [*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2192264361] Spider Gorge [/url]
-[*] [strike] [url=steamcommunity.com/sharedfiles/filedetails/?id=1861166199] SentinelAI [/url] [/strike]
+[*] [strike][url=steamcommunity.com/sharedfiles/filedetails/?id=1861166199] SentinelAI [/url][/strike]
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2576890089] The Heavy Cannon [/url]
+[*] [url=steamcommunity.com/sharedfiles/filedetails/?id=2579986919] The TSF Revolver [/url]
 [/list]
 
 Shine Pregame configuration:
@@ -40,4 +47,4 @@ The property "mode" needs to be set to "Time"
 image       = "preview.jpg"
 tag_modtype = "Custom Game Mode"
 tag_support = "Must be run on Server"
-publish_id = "93f05553"
+publish_id = "8ae61f8f"

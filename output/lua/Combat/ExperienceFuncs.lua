@@ -94,6 +94,7 @@ function GetUpgradeFromId(upgradeId)
 			return upgrade
 		end
 	end
+	return nil
 
 end
 
@@ -101,10 +102,11 @@ function GetUpgradeFromTechId(upgradeTechId)
 
 	-- Find the upgrade that matches this Id.
 	for _, upgrade in ipairs(UpsList) do
-		if upgrade:GetTechId() == upgradeTechId then
+		if upgradeTechId == upgrade:GetTechId() then
 			return upgrade
 		end
 	end
+	return nil
 
 end
 

@@ -74,11 +74,11 @@ kPropEffectTimer = 2
 
 -- Spawn protection
 kCombatSpawnProtectDelay = 0.1
-kCombatMarineSpawnProtectTime = 2
+kCombatMarineSpawnProtectTime = 3
 -- nano shield = spawn Protection
 kNanoShieldDuration = kCombatMarineSpawnProtectTime
 -- Alien time includes time spent in the egg.
-kCombatAlienSpawnProtectTime = kSkulkGestateTime + 2
+kCombatAlienSpawnProtectTime = kSkulkGestateTime + 3
 
 -- No eggs
 kAlienEggsPerHive = 0
@@ -88,13 +88,13 @@ kHiveCCHealRate = 0.3
 -- The rate at which players gain XP for healing... relative to damage dealt.
 kHealXpRate = 0.5
 -- Rate at which players gain XP for healing other players...
-kPlayerHealXpRate = 0.2
+kPlayerHealXpRate = 0.3
 
 -- kill hydras after some time if the owner isn't a gorge
 kHydraKillTime = 30
 
 -- Time delay for exo suits to power up.
-kExoPowerUpTime = 3
+kExoPowerUpTime = 2
 
 -- Override the costs of each of our entries.
 -- These won't take effect on the client side until we import this file into the client side mods
@@ -142,7 +142,7 @@ kGorgeTunnelCost = generalCost
 kBabblerCost = 0
 
 -- Range for evolving to Onos/Exo from the Hive/CommandStation
-kTechRange = 20.0
+kTechRange = 25.0
 
 --set starting personal resources to 0
 kMarineInitialIndivRes = 0

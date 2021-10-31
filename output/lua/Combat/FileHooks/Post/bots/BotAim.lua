@@ -1,1 +1,2 @@
-BotAim.reactionTime = 0.30 -- default 0.50
+BotAim.reactionTime = 0.38
+BotAim.viewAngle = math.rad(90)
