@@ -267,7 +267,7 @@ if kCannonCost then
 end
 
 if kSubmachinegunCost then
-	table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.Submachinegun, "smg", "Submachinegun", kTechId.Submachinegun, nil, kCombatUpgrades.Weapons1, 1, kCombatUpgradeTypes.Weapon, false, 0, excludeAASubmachinegun, false))
+	table.insert(UpsList, BuildUpgrade("Marine", kCombatUpgrades.Submachinegun, "smg", "Submachinegun", kTechId.Submachinegun, nil, kCombatUpgrades.Shotgun, 1, kCombatUpgradeTypes.Weapon, false, 0, excludeAASubmachinegun, false))
 end
 
 -- Weapons
