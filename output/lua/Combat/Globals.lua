@@ -115,12 +115,12 @@ kDualMinigunCost = generalCost
 -- Used by alien buy menu
 kGorgeCost = 1
 if kProwlerCost then
-    kProwlerCost = 3
+    kProwlerCost = 4
 end
 if kChangelingCost then
     kChangelingCost = 3
 end
-kLerkCost = 4
+kLerkCost = 3
 kFadeCost = 5
 kOnosCost = 7
 

@@ -8,7 +8,7 @@ if kProwlerCost and kChangelingCost then
 		'RailGunExosuit', 'ClusterGrenade', 'GasGrenade', 'PulseGrenade',
 		
 		-- Alien upgrades
-		'Gorge', 'Prowler', 'Changeling', 'Lerk', 'Fade', 'Onos',
+		'Gorge', 'Changeling', 'Lerk', 'Prowler', 'Fade', 'Onos',
 		'TierTwo', 'TierThree',
 		'Carapace', 'Regeneration', 'Vampirism', 'Camouflage', 'Celerity',
 		'Adrenaline', 'Feint', 'ShadeInk', 'Focus', 'Aura', 'Crush' })
@@ -21,7 +21,7 @@ elseif kProwlerCost then
 		'RailGunExosuit', 'ClusterGrenade', 'GasGrenade', 'PulseGrenade',
 		
 		-- Alien upgrades
-		'Gorge', 'Prowler', 'Lerk', 'Fade', 'Onos',
+		'Gorge', 'Lerk','Prowler', 'Fade', 'Onos',
 		'TierTwo', 'TierThree',
 		'Carapace', 'Regeneration', 'Vampirism', 'Camouflage', 'Celerity',
 		'Adrenaline', 'Feint', 'ShadeInk', 'Focus', 'Aura', 'Crush' })

@@ -64,6 +64,6 @@ kCombatTauntCheckInterval = 4
 
 kSprintSpeedUpgradeScalar = 3.25
 
-kARCSpawnFrequency = 60
+kARCSpawnFrequency = 90
 
 kShadeInkDuration = 5

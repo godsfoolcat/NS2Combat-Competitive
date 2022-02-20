@@ -41,3 +41,16 @@ ModLoader.SetupFileHook("lua/water_Server.lua", "", "halt")
 ModLoader.SetupFileHook("lua/water_Predict.lua", "", "halt")
 ModLoader.SetupFileHook("lua/water_Shared.lua", "", "halt")
 ModLoader.SetupFileHook( "lua/Prowler/bots/SkulkBrain_Data.lua", "lua/Combat/FileHooks/Replace/bots/SkulkBrain_Data.lua", "replace" )
+
+-- alter revolver, stop this file from being executed
+ModLoader.SetupFileHook( "lua/Revolver/Combat data/MarineBuyFuncs.lua", "lua/Combat/revolver/MarineBuyFuncs.lua", "replace" )
+ModLoader.SetupFileHook( "lua/Revolver/Combat data/ExperienceData.lua", "lua/Combat/revolver/ExperienceData.lua", "replace" )
+
+ModLoader.SetupFileHook( "lua/ShieldGenerator/Combat/MarineBuyFuncs.lua", "lua/Combat/personalshield/MarineBuyFuncs.lua", "replace" )
+ModLoader.SetupFileHook( "lua/ShieldGenerator/Combat/ExperienceData.lua", "lua/Combat/personalshield/ExperienceData.lua", "replace" )
+ModLoader.SetupFileHook( "lua/ShieldGenerator/Balance.lua", "lua/Combat/personalshield/Balance.lua", "replace" )
+
+ModLoader.SetupFileHook( "lua/Submachinegun/Combat data/MarineBuyFuncs.lua", "lua/Combat/smg/MarineBuyFuncs.lua", "replace" )
+ModLoader.SetupFileHook( "lua/Cannon/Combat data/MarineBuyFuncs.lua", "lua/Combat/cannon/MarineBuyFuncs.lua", "replace" )
+
+ModLoader.SetupFileHook( "lua/Prowler/GUIAlienBuyMenu.lua", "lua/Combat/prowler/GUIAlienBuyMenu.lua", "replace" )

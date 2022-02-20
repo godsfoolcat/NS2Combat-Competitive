@@ -47,4 +47,4 @@ The property "mode" needs to be set to "Time"
 image       = "preview.jpg"
 tag_modtype = "Custom Game Mode"
 tag_support = "Must be run on Server"
-publish_id = "8ae61f8f"
+publish_id = 2330337167
