@@ -65,7 +65,7 @@ function Marine:OnSprintStart()
                 self.hasFastSprint = true
                 break
             end
-        end        
+        end
     end
     
 end
