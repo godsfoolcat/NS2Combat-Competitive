@@ -1,4 +1,4 @@
-Script.Load("lua/Combat/bots/MinigunBrain.lua")
+Script.Load("lua/bots/MinigunBrain.lua")
 
 
 local personalities = {
