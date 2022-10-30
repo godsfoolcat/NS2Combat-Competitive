@@ -278,6 +278,7 @@ local function PerformAttackEntity( eyePos, bestTarget, lastSeenPos, bot, brain,
     end
 
     local isDodgeable = bestTarget:isa("Player") or bestTarget:isa("MAC")
+    local isArc = bestTarget:isa("ARC")
     local hasClearShot = distance < 45.0 and bot:GetBotCanSeeTarget( bestTarget )
     if hasClearShot then
         bot.lastFoughtEnemy = time
@@ -285,6 +286,13 @@ local function PerformAttackEntity( eyePos, bestTarget, lastSeenPos, bot, brain,
 
     local skulkBiteRange = 1.4
     
+
+    if isArc then
+        --Print("Attack ARC: " .. distance )
+        -- For unknown reasons, the distance is much higher for arcs, around 80-100.
+        -- With this they successfully bite it.
+        skulkBiteRange = 90
+    end
     if distance < skulkBiteRange then
         doFire = true
     end
@@ -319,8 +327,12 @@ local function PerformAttackEntity( eyePos, bestTarget, lastSeenPos, bot, brain,
             end
             
         else
+            local maxDistance = 0.9
+            if isArc then
+                maxDistance = 89
+            end
             -- Attacking a structure
-            if distance < 0.9 then  --TODO Read Skulk bite-range from balance data
+            if distance < maxDistance then  --TODO Read Skulk bite-range from balance data
 
                 bot:GetMotion():SetDesiredViewTarget( aimPos )
 
