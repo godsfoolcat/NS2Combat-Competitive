@@ -625,3 +625,77 @@ function CreateFadeBrainSenses()
 
     return s
 end
+
+
+local function GotRequirements(player, upgrade)
+    if upgrade then
+        local requirements = upgrade:GetRequirements()
+        -- does this up needs other ups??
+        if requirements then
+            local requiredUpgrade = GetUpgradeFromId(requirements)
+            return player:GetHasCombatUpgrade(requiredUpgrade:GetId())
+        else
+            return true
+        end
+    end
+    return false
+end
+
+local function CreateBuyCombatUpgradeAction(techId, weightIfCanDo)
+
+    return function(bot, brain)
+
+        local name = "combat_" .. EnumToString( kTechId, techId )
+        local weight = 0.0
+        local upgrade = GetUpgradeFromTechId(techId)
+        local player = bot:GetPlayer()
+
+        -- limit how often we can try to buy things
+        if not(bot.lastCombatBuyAction and bot.lastCombatBuyAction + 5 > Shared.GetTime()) then
+            local resources = player:GetResources()
+            local cost = upgrade:GetLevels()
+            local hasUpgrade = player:GetHasCombatUpgrade(upgrade:GetId())
+            local doable = GotRequirements(player, upgrade)
+            local hardCapped = upgrade:GetIsHardCappedForBots(player)
+
+            if not hardCapped and doable and not hasUpgrade and cost <= resources then
+                weight = weightIfCanDo
+            end
+
+        end
+
+
+        return {
+            name = name, weight = weight,
+            perform = function(move)
+                bot.lastCombatBuyAction = Shared.GetTime()
+
+                -- todo: support multiple upgrades at a time...?
+                --Log("Trying to upgrade " .. upgrade:GetDescription())
+                local upgradeTable = {}
+                table.insert(upgradeTable, upgrade)
+                player:CoEnableUpgrade(upgradeTable)
+
+
+            end }
+    end
+end
+
+
+-- todo: don't block movement!!
+-- make the first upgrades kinda crappy so it's more fun for everyone
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Carapace,     3.3 + math.random() ))
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Regeneration,    3.0 + math.random() ))
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Vampirism,     0.3 + math.random() ))
+if not kCombatCompMode then
+    table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Camouflage,          0.1 + math.random() ))
+    --table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Aura,          0.3 + math.random() ))
+    --table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.ShadeInk,          0.3 + math.random() ))
+    table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Focus,          0.3 + math.random() ))
+end
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Celerity,      3.0 + math.random() ))
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Adrenaline,      3.0 + math.random() ))
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.Crush,          3.3 + math.random() ))
+
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.BioMassTwo,     4.0 + math.random() * 2.0 ))
+table.insert(kFadeBrainActions, CreateBuyCombatUpgradeAction(kTechId.BioMassThree,     4.3 + math.random() ))

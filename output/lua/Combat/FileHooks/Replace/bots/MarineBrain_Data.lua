@@ -2186,353 +2186,359 @@ kMarineBrainObjectiveActions =
 
     end, -- PLACE MINES
 
-    function(bot, brain, marine)
-        PROFILE("MarineBrain - BuyWelder")
-        -- Log("MarineBrain - BuyWelder")
+-- not possible in combat
+--     function(bot, brain, marine)
+--         PROFILE("MarineBrain - BuyWelder")
+--         -- Log("MarineBrain - BuyWelder")
+--
+--         local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyWelder]
+--         local sdb = brain:GetSenses()
+--         local weight = 0
+--         local armoryData = sdb:Get("nearestArmory")
+--         local armory = armoryData.armory
+--         local armoryDist = armoryData.distance
+--         local resources = marine:GetResources()
+--
+--         if not sdb:Get("welder") and (armory and armory:GetIsBuilt()) then
+--             if armoryDist < 50 and resources >= LookupTechData(kTechId.Welder, kTechDataCostKey) then
+--                 weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyWelder )
+--             end
+--         end
+--
+--         return
+--         {
+--             name = name,
+--             weight = weight,
+--             structure = armory,
+--             buyId = kTechId.Welder,
+--             validate = kValidateBuyTechId,
+--             perform = kExecBuyTechId
+--         }
+--
+--     end, -- PURCHASE WELDER
 
-        local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyWelder]
-        local sdb = brain:GetSenses()
-        local weight = 0
-        local armoryData = sdb:Get("nearestArmory")
-        local armory = armoryData.armory
-        local armoryDist = armoryData.distance
-        local resources = marine:GetResources()
-        
-        if not sdb:Get("welder") and (armory and armory:GetIsBuilt()) then
-            if armoryDist < 50 and resources >= LookupTechData(kTechId.Welder, kTechDataCostKey) then
-                weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyWelder )
-            end
-        end
-        
-        return 
-        { 
-            name = name, 
-            weight = weight,
-            structure = armory,
-            buyId = kTechId.Welder,
-            validate = kValidateBuyTechId,
-            perform = kExecBuyTechId
-        }
+-- not possible in combat
+--     function(bot, brain, marine)
+--         PROFILE("MarineBrain - BuyExo")
+--         -- Log("MarineBrain - BuyExo")
+--
+--         local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyExo]
+--         local sdb = brain:GetSenses()
+--
+--         local techTree = GetTechTree(marine:GetTeamNumber())
+--
+--         if not techTree:GetHasTech(kTechId.ExosuitTech, true) then
+--             return kNilAction
+--         end
+--
+--         local weight = 0.0
+--         local resources = marine:GetResources()
+--
+--         local globalBuyCapRatio = 1/3 -- How many exos are allowed (minigun or railgun) on the team at a time.
+--         local exoRailgunRatio = 1/3 -- How many railguns are allowed of the global cap
+--         local exoCounts = sdb:Get("exoCounts")
+--
+--         local totalPlayers = GetGamerules():GetTeam(marine:GetTeamNumber()):GetNumPlayers()
+--         local totalExosAllowed = math.floor(totalPlayers * globalBuyCapRatio)
+--         local totalRailgunsAllowed = math.floor(totalExosAllowed * exoRailgunRatio)
+--
+--         if not MarineBrain.kRailgunExoEnabled then
+--             totalRailgunsAllowed = 0
+--         end
+--
+--         local shouldBuyExo = totalExosAllowed > 0 and
+--             totalExosAllowed > 0 and
+--             not marine:isa("JetpackMarine") and
+--             not HasGoodWeapon(marine) and
+--             resources >= LookupTechData(kTechId.DualMinigunExosuit, kTechDataCostKey) and
+--             totalExosAllowed - exoCounts.total > 0
+--
+--         if not shouldBuyExo then
+--             return kNilAction
+--         end
+--
+--         local buyId = kTechId.DualMinigunExosuit
+--         if totalRailgunsAllowed > 0 and math.random() > 0.5 then
+--             buyId = kTechId.DualRailgunExosuit -- Don't need many railguns, miniguns much more useful
+--         end
+--
+--         local data = sdb:Get("nearestProto")
+--         local proto = data.proto
+--         local protoDist = data.distance
+--
+--         if proto and protoDist then
+--             weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyExo )
+--
+--             if bot.wantsExo then
+--                 weight = weight + 5 -- gimme gimme gimme
+--             end
+--         else
+--             return kNilAction
+--         end
+--
+--         return
+--         {
+--             name = name,
+--             weight = weight,
+--             structure = proto,
+--             buyId = buyId,
+--             limit = (totalExosAllowed - exoCounts.total),
+--             validate = kValidateBuyTechId,
+--             perform = kExecBuyTechId
+--         }
+--     end, -- BUY EXO
 
-    end, -- PURCHASE WELDER
+-- not possible in combat
+--     function(bot, brain, marine)
+--         PROFILE("MarineBrain - RepairPower")
+--         -- Log("MarineBrain - RepairPower")
+--
+--         local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.RepairPower]
+--         local sdb = brain:GetSenses()
+--         local weight = 0
+--         local powerInfo = sdb:Get("nearestPower")
+--         local powernode = powerInfo and powerInfo.entity or nil
+--
+--         if powernode ~= nil and powernode:GetIsDisabled() and powernode:GetCanBeHealed() then
+--
+--             --local locationEnt = powernode:GetLocationEntity()
+--             local numOthers = brain.teamBrain:GetNumOthersAssignedToEntity( marine, powernode:GetId() )
+--             local maxOthers = 1
+--             local shouldBuildPowernode = powernode:HasConsumerRequiringPower()
+--
+--             if shouldBuildPowernode and (numOthers <= maxOthers) then
+--                 weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.RepairPower )
+--             end
+--
+--         end
+--
+--         return
+--         {
+--             name = name,
+--             weight = weight,
+--             powernode = powernode,
+--             validate = kValidateRepairPower,
+--             perform = kExecRepairPower
+--         }
+--     end, -- REPAIR POWERNODE
 
-    function(bot, brain, marine)
-        PROFILE("MarineBrain - BuyExo")
-        -- Log("MarineBrain - BuyExo")
+-- not possible in combat
+--     function(bot, brain, marine)    --BOT-TODO Review and revise this. It's really heavy handed for simple purchasing. Offload Unlock checks to TeamBrain, or similar
+--         PROFILE("MarineBrain - BuyWeapons")
+--         -- Log("MarineBrain - BuyWeapons")
+--
+--         local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyWeapons]
+--         local sdb = brain:GetSenses()
+--         local primaryWep = marine:GetWeaponInHUDSlot(1)
+--         local weight = 0
+--         local targetArmory = nil
+--         local canAffordWeaponTechId = nil
+--         local roundTimeMinutes = GetGameMinutesPassed()
+--
+--         local hasBoughtDesiredWeapon = primaryWep and primaryWep:GetTechId() == brain.activeWeaponPurchaseTechId
+--
+--         if not hasBoughtDesiredWeapon and brain.activeWeaponPurchaseTechId ~= nil then
+--         --Update Armory position / target only (done in case of Recycle / Destroyed)
+--
+--             local armoryGoal = sdb:Get("nearbyArmory")
+--             local armory = armoryGoal and armoryGoal.armory or nil
+--             targetArmory = armory
+--             local isAdvArmory = targetArmory ~= nil and targetArmory:isa("AdvancedArmory") or false
+--
+--             local wantAdvancedWeapon = brain.activeWeaponPurchaseTechId ~= kTechId.Shotgun
+--
+--             if wantAdvancedWeapon and not isAdvArmory then
+--             --Only update if needed
+--                 local advArmoryGoal = sdb:Get("nearbyAdvancedArmory")
+--                 if advArmoryGoal and advArmoryGoal.armory then
+--                     targetArmory = advArmoryGoal.armory
+--                 else
+--                 --Adv armory doesn't exist, or was destroyed, bail-out on this action
+--                     wantNewWeapon = false
+--                     targetArmory = nil
+--                     weight = 0
+--                 end
+--             end
+--
+--             if targetArmory then
+--                 weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyWeapons )
+--             end
+--
+--         --We've not decided on a Weapon yet, so go through decision routine accounting for saving for JP/Exo
+--         else
+--
+--             -- Find all the weapons available for purchase.
+--             local availableWeapons = { }
+--             local weapons = enum({
+--                 kTechId.HeavyMachineGun,
+--                 kTechId.Shotgun,
+--                 kTechId.Flamethrower,
+--                 kTechId.GrenadeLauncher,
+--             })
+--
+--             local weaponTechs =
+--             {
+--                 [kTechId.Shotgun] = kTechId.ShotgunTech,
+--                 [kTechId.Flamethrower] = kTechId.AdvancedWeaponry,
+--                 [kTechId.GrenadeLauncher] = kTechId.AdvancedWeaponry,
+--                 [kTechId.HeavyMachineGun] = kTechId.AdvancedWeaponry,
+--             }
+--
+--             local hasAnyOptions = false
+--             local techTree = GetTechTree(marine:GetTeamNumber())    --BOT-TODO This kind of thing could be cached in TeamBrain when Tech-Unlock message is triggered
+--             if techTree then
+--                 for _, weaponTechId in ipairs(weapons) do
+--                     if techTree:GetHasTech(weaponTechs[weaponTechId], true) then
+--                         availableWeapons[#availableWeapons + 1] = weaponTechId
+--                         availableWeapons[weaponTechId] = true
+--                         hasAnyOptions = true
+--                     end
+--                 end
+--             end
+--
+--             --If nothing is unlocked, bail now, and only check if we've got a Rifle
+--             if primaryWep and primaryWep:GetMapName() == Rifle.kMapName and hasAnyOptions then
+--
+--                 -- See if the Marine can afford anything.
+--                 local resources = marine:GetResources()
+--
+--             --!!!!BOT-FIXME This MUST take into account at least some TeamBrain weight value of "We're pushing / We're getting fucked! / Etc." !!!!
+--             --        Because if a team is loosing and no JP/Exos are unlocked (e.g. Don't even have a Proto yet) ...then why bother saving?
+--             --        Doing it this way actually gives Aliens a bigger advantage after about minute 5 or so, scaling upwards the longer a round goes.
+--             --        ...the 'gotchya' of above is Bots SUCK at staying alive, thus not earning Pres while dead. But, that also spins back on
+--             --        the same points made. So....Marines perma-fucked?  ...I swear, we need to make Marine-Bots more skilled or something. They're
+--             --        fubared otherwise...that, or make Aliens more sucky?
+--
+--
+--                 if roundTimeMinutes > 2 then    --BOT-TODO Tune this, or just remove (although, logical purpose of it _IS_ valid...)
+--                 --ignore thing which cannot be reached (Pres) within X timespan
+--
+--                 --BOT-TODO Come up with a better way to select Exo/JPs ...using math.random() is HORRIBLE and devoid of contextuality...
+--                     if not bot.decidedIfSavingForExo then
+--                         bot.decidedIfSavingForExo = true
+--                         bot.wantsExo = math.random() < 0.4
+--                     end
+--
+--                     if not bot.decidedIfSavingForJetpack then
+--                         bot.decidedIfSavingForJetpack = true
+--                         bot.wantsJetpack = not bot.wantsExo and math.random() < 0.3
+--                     end
+--
+--
+--                     -- always try to reserve enough for an exo
+--                     if bot.wantsExo then
+--                         resources = resources - LookupTechData(kTechId.DualMinigunExosuit, kTechDataCostKey)
+--                     end
+--
+--                     if bot.wantsJetpack then
+--                         resources = resources - LookupTechData(kTechId.Jetpack, kTechDataCostKey)
+--                     end
+--
+--                 end
+--
+--                 --BOT-TODO Revise below, and use some kind of lookup table via TeamBrain (or similar) which marks what all other Marines have, try to bias towards to fill "gaps"
+--                 for _, techId in ipairs(availableWeapons) do
+--
+--                     if resources >= LookupTechData(techId, kTechDataCostKey) then
+--
+--                         canAffordWeaponTechId = techId
+--                         --Continue checking the other weapons with a 50% chance each
+--                         if math.random() > 0.5 then     --BOT-FIXME This is fucking garbage...at a minimum it should use BotPersona ...at least that'll add SOME distribution (see PlayerBot_Server.lua - line 212)
+--                             break
+--                         end
+--
+--                     end
+--
+--                 end
+--
+--                 --Set the desired Weapon, on next weight-compute time, the armory checks will be done
+--                 --While this does effectively defer the this action, it reduces need/complexity to NOT check for armory this pass (since we cache desired TechID)
+--                 brain.activeWeaponPurchaseTechId = canAffordWeaponTechId
+--
+--             end
+--
+--         end
+--
+--         return
+--         {
+--             name = name,
+--             weight = weight,
+--             --fastUpdate = true,
+--             targetArmory = targetArmory,
+--             validate = kValidateBuyWeapons,
+--             perform = kExecBuyWeapons
+--         }
+--     end, -- BUY WEAPONS
 
-        local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyExo]
-        local sdb = brain:GetSenses()
+-- not possible in combat
+--     function(bot, brain, marine)    --FIXME This should check for JPs on ground FIRST, then fail-over to purchase
+--         PROFILE("MarineBrain - BuyJetpack")
+--         -- Log("MarineBrain - BuyJetpack")
+--
+--         local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyJetpack]
+--         local sdb = brain:GetSenses()
+--
+--         local data = sdb:Get("nearestProto")
+--         local proto = data.proto
+--         local protoDist = data.distance
+--         local weight = 0
+--         local resources = marine:GetResources()
+--
+--         local techTree = GetTechTree(marine:GetTeamNumber())
+--
+--         if proto and protoDist and not marine:isa("JetpackMarine") and techTree:GetHasTech(kTechId.JetpackTech, true) and resources >= LookupTechData(kTechId.Jetpack, kTechDataCostKey) then
+--             weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyJetpack )
+--
+--             if bot.wantsJetpack then
+--                 weight = weight + 5 -- gimme gimme gimme
+--             end
+--         end
+--
+--         return
+--         {
+--             name = name,
+--             weight = weight,
+--             structure = proto,
+--             buyId = kTechId.Jetpack,
+--             validate = kValidateBuyTechId,
+--             perform = kExecBuyTechId
+--         }
+--     end, -- BUY JETPACK
 
-        local techTree = GetTechTree(marine:GetTeamNumber())
-
-        if not techTree:GetHasTech(kTechId.ExosuitTech, true) then
-            return kNilAction
-        end
-
-        local weight = 0.0
-        local resources = marine:GetResources()
-
-        local globalBuyCapRatio = 1/3 -- How many exos are allowed (minigun or railgun) on the team at a time.
-        local exoRailgunRatio = 1/3 -- How many railguns are allowed of the global cap
-        local exoCounts = sdb:Get("exoCounts")
-
-        local totalPlayers = GetGamerules():GetTeam(marine:GetTeamNumber()):GetNumPlayers()
-        local totalExosAllowed = math.floor(totalPlayers * globalBuyCapRatio)
-        local totalRailgunsAllowed = math.floor(totalExosAllowed * exoRailgunRatio)
-
-        if not MarineBrain.kRailgunExoEnabled then
-            totalRailgunsAllowed = 0
-        end
-
-        local shouldBuyExo = totalExosAllowed > 0 and
-            totalExosAllowed > 0 and
-            not marine:isa("JetpackMarine") and
-            not HasGoodWeapon(marine) and
-            resources >= LookupTechData(kTechId.DualMinigunExosuit, kTechDataCostKey) and
-            totalExosAllowed - exoCounts.total > 0
-
-        if not shouldBuyExo then
-            return kNilAction
-        end
-
-        local buyId = kTechId.DualMinigunExosuit
-        if totalRailgunsAllowed > 0 and math.random() > 0.5 then
-            buyId = kTechId.DualRailgunExosuit -- Don't need many railguns, miniguns much more useful
-        end
-
-        local data = sdb:Get("nearestProto")
-        local proto = data.proto
-        local protoDist = data.distance
-
-        if proto and protoDist then
-            weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyExo )
-
-            if bot.wantsExo then
-                weight = weight + 5 -- gimme gimme gimme
-            end
-        else
-            return kNilAction
-        end
-
-        return
-        {
-            name = name,
-            weight = weight,
-            structure = proto,
-            buyId = buyId,
-            limit = (totalExosAllowed - exoCounts.total),
-            validate = kValidateBuyTechId,
-            perform = kExecBuyTechId
-        }
-    end, -- BUY EXO
-
-    function(bot, brain, marine)
-        PROFILE("MarineBrain - RepairPower")
-        -- Log("MarineBrain - RepairPower")
-
-        local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.RepairPower]
-        local sdb = brain:GetSenses()
-        local weight = 0
-        local powerInfo = sdb:Get("nearestPower")
-        local powernode = powerInfo and powerInfo.entity or nil
-
-        if powernode ~= nil and powernode:GetIsDisabled() and powernode:GetCanBeHealed() then
-
-            --local locationEnt = powernode:GetLocationEntity()
-            local numOthers = brain.teamBrain:GetNumOthersAssignedToEntity( marine, powernode:GetId() )
-            local maxOthers = 1
-            local shouldBuildPowernode = powernode:HasConsumerRequiringPower()
-
-            if shouldBuildPowernode and (numOthers <= maxOthers) then
-                weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.RepairPower )
-            end
-
-        end
-
-        return 
-        { 
-            name = name, 
-            weight = weight,
-            powernode = powernode,
-            validate = kValidateRepairPower,
-            perform = kExecRepairPower
-        }
-    end, -- REPAIR POWERNODE
-
-    function(bot, brain, marine)    --BOT-TODO Review and revise this. It's really heavy handed for simple purchasing. Offload Unlock checks to TeamBrain, or similar
-        PROFILE("MarineBrain - BuyWeapons")
-        -- Log("MarineBrain - BuyWeapons")
-
-        local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyWeapons]
-        local sdb = brain:GetSenses()
-        local primaryWep = marine:GetWeaponInHUDSlot(1)
-        local weight = 0
-        local targetArmory = nil
-        local canAffordWeaponTechId = nil
-        local roundTimeMinutes = GetGameMinutesPassed()
-
-        local hasBoughtDesiredWeapon = primaryWep and primaryWep:GetTechId() == brain.activeWeaponPurchaseTechId
-
-        if not hasBoughtDesiredWeapon and brain.activeWeaponPurchaseTechId ~= nil then
-        --Update Armory position / target only (done in case of Recycle / Destroyed)
-
-            local armoryGoal = sdb:Get("nearbyArmory")
-            local armory = armoryGoal and armoryGoal.armory or nil
-            targetArmory = armory
-            local isAdvArmory = targetArmory ~= nil and targetArmory:isa("AdvancedArmory") or false
-
-            local wantAdvancedWeapon = brain.activeWeaponPurchaseTechId ~= kTechId.Shotgun
-
-            if wantAdvancedWeapon and not isAdvArmory then
-            --Only update if needed
-                local advArmoryGoal = sdb:Get("nearbyAdvancedArmory")
-                if advArmoryGoal and advArmoryGoal.armory then
-                    targetArmory = advArmoryGoal.armory
-                else
-                --Adv armory doesn't exist, or was destroyed, bail-out on this action
-                    wantNewWeapon = false
-                    targetArmory = nil
-                    weight = 0
-                end
-            end
-
-            if targetArmory then
-                weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyWeapons )
-            end
-
-        --We've not decided on a Weapon yet, so go through decision routine accounting for saving for JP/Exo
-        else
-
-            -- Find all the weapons available for purchase.
-            local availableWeapons = { }
-            local weapons = enum({
-                kTechId.HeavyMachineGun,
-                kTechId.Shotgun,
-                kTechId.Flamethrower,
-                kTechId.GrenadeLauncher,
-            })
-
-            local weaponTechs = 
-            {
-                [kTechId.Shotgun] = kTechId.ShotgunTech,
-                [kTechId.Flamethrower] = kTechId.AdvancedWeaponry,
-                [kTechId.GrenadeLauncher] = kTechId.AdvancedWeaponry,
-                [kTechId.HeavyMachineGun] = kTechId.AdvancedWeaponry,
-            }
-
-            local hasAnyOptions = false
-            local techTree = GetTechTree(marine:GetTeamNumber())    --BOT-TODO This kind of thing could be cached in TeamBrain when Tech-Unlock message is triggered
-            if techTree then
-                for _, weaponTechId in ipairs(weapons) do
-                    if techTree:GetHasTech(weaponTechs[weaponTechId], true) then
-                        availableWeapons[#availableWeapons + 1] = weaponTechId
-                        availableWeapons[weaponTechId] = true
-                        hasAnyOptions = true
-                    end
-                end
-            end
-            
-            --If nothing is unlocked, bail now, and only check if we've got a Rifle
-            if primaryWep and primaryWep:GetMapName() == Rifle.kMapName and hasAnyOptions then
-
-                -- See if the Marine can afford anything.
-                local resources = marine:GetResources()
-
-            --!!!!BOT-FIXME This MUST take into account at least some TeamBrain weight value of "We're pushing / We're getting fucked! / Etc." !!!!
-            --        Because if a team is loosing and no JP/Exos are unlocked (e.g. Don't even have a Proto yet) ...then why bother saving?
-            --        Doing it this way actually gives Aliens a bigger advantage after about minute 5 or so, scaling upwards the longer a round goes.
-            --        ...the 'gotchya' of above is Bots SUCK at staying alive, thus not earning Pres while dead. But, that also spins back on
-            --        the same points made. So....Marines perma-fucked?  ...I swear, we need to make Marine-Bots more skilled or something. They're
-            --        fubared otherwise...that, or make Aliens more sucky?
-                
-                    
-                if roundTimeMinutes > 2 then    --BOT-TODO Tune this, or just remove (although, logical purpose of it _IS_ valid...)
-                --ignore thing which cannot be reached (Pres) within X timespan
-                    
-                --BOT-TODO Come up with a better way to select Exo/JPs ...using math.random() is HORRIBLE and devoid of contextuality...
-                    if not bot.decidedIfSavingForExo then
-                        bot.decidedIfSavingForExo = true
-                        bot.wantsExo = math.random() < 0.4
-                    end
-                    
-                    if not bot.decidedIfSavingForJetpack then
-                        bot.decidedIfSavingForJetpack = true
-                        bot.wantsJetpack = not bot.wantsExo and math.random() < 0.3
-                    end
-                    
-                    
-                    -- always try to reserve enough for an exo
-                    if bot.wantsExo then
-                        resources = resources - LookupTechData(kTechId.DualMinigunExosuit, kTechDataCostKey)
-                    end
-                    
-                    if bot.wantsJetpack then
-                        resources = resources - LookupTechData(kTechId.Jetpack, kTechDataCostKey)
-                    end
-
-                end
-                
-                --BOT-TODO Revise below, and use some kind of lookup table via TeamBrain (or similar) which marks what all other Marines have, try to bias towards to fill "gaps"
-                for _, techId in ipairs(availableWeapons) do
-                    
-                    if resources >= LookupTechData(techId, kTechDataCostKey) then
-                        
-                        canAffordWeaponTechId = techId
-                        --Continue checking the other weapons with a 50% chance each
-                        if math.random() > 0.5 then     --BOT-FIXME This is fucking garbage...at a minimum it should use BotPersona ...at least that'll add SOME distribution (see PlayerBot_Server.lua - line 212)
-                            break
-                        end
-                        
-                    end
-                    
-                end
-                
-                --Set the desired Weapon, on next weight-compute time, the armory checks will be done
-                --While this does effectively defer the this action, it reduces need/complexity to NOT check for armory this pass (since we cache desired TechID)
-                brain.activeWeaponPurchaseTechId = canAffordWeaponTechId
-
-            end
-
-        end
-        
-        return 
-        { 
-            name = name, 
-            weight = weight,
-            --fastUpdate = true,
-            targetArmory = targetArmory,
-            validate = kValidateBuyWeapons,
-            perform = kExecBuyWeapons
-        }
-    end, -- BUY WEAPONS
-
-    function(bot, brain, marine)    --FIXME This should check for JPs on ground FIRST, then fail-over to purchase
-        PROFILE("MarineBrain - BuyJetpack")
-        -- Log("MarineBrain - BuyJetpack")
-
-        local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyJetpack]
-        local sdb = brain:GetSenses()
-
-        local data = sdb:Get("nearestProto")
-        local proto = data.proto
-        local protoDist = data.distance
-        local weight = 0
-        local resources = marine:GetResources()
-        
-        local techTree = GetTechTree(marine:GetTeamNumber())
-        
-        if proto and protoDist and not marine:isa("JetpackMarine") and techTree:GetHasTech(kTechId.JetpackTech, true) and resources >= LookupTechData(kTechId.Jetpack, kTechDataCostKey) then
-            weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyJetpack )
-                    
-            if bot.wantsJetpack then
-                weight = weight + 5 -- gimme gimme gimme
-            end
-        end
-        
-        return 
-        { 
-            name = name, 
-            weight = weight,
-            structure = proto,
-            buyId = kTechId.Jetpack,
-            validate = kValidateBuyTechId,
-            perform = kExecBuyTechId
-        }
-    end, -- BUY JETPACK
-
-    function(bot, brain, marine)
-        PROFILE("MarineBrain - BuyMines")
-        -- Log("MarineBrain - BuyMines")
-
-        local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyMines]
-        local sdb = brain:GetSenses()
-
-        local data = sdb:Get("nearbyArmory")
-        local armory = data.armory
-        local weight = 0
-        local resources = marine:GetResources()
-
-        local techTree = GetTechTree(marine:GetTeamNumber())
-        local lastBuyMines = brain.lastBoughtMines or 0.0
-
-        -- Don't buy mines if we're saving for exos, we don't have enough money for an advanced weapon, or we've recently bought a mine
-        local shouldBuyMines = (lastBuyMines + 60) < Shared.GetTime() and resources >= 20 and not bot.wantsExo
-
-        if armory and techTree:GetHasTech(kTechId.MinesTech, true) and not marine:GetWeaponInHUDSlot(4) and (GetWarmupActive() or shouldBuyMines) then
-            weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyMines )
-        end
-
-        return
-        {
-            name = name,
-            weight = weight,
-            structure = armory,
-            buyId = kTechId.LayMines,
-            updateKey = 'lastBoughtMines',
-            validate = kValidateBuyTechId,
-            perform = kExecBuyTechId
-        }
-    end, -- BUY JETPACK
+-- not possible in combat
+--     function(bot, brain, marine)
+--         PROFILE("MarineBrain - BuyMines")
+--         -- Log("MarineBrain - BuyMines")
+--
+--         local name = kMarineBrainObjectiveTypes[kMarineBrainObjectiveTypes.BuyMines]
+--         local sdb = brain:GetSenses()
+--
+--         local data = sdb:Get("nearbyArmory")
+--         local armory = data.armory
+--         local weight = 0
+--         local resources = marine:GetResources()
+--
+--         local techTree = GetTechTree(marine:GetTeamNumber())
+--         local lastBuyMines = brain.lastBoughtMines or 0.0
+--
+--         -- Don't buy mines if we're saving for exos, we don't have enough money for an advanced weapon, or we've recently bought a mine
+--         local shouldBuyMines = (lastBuyMines + 60) < Shared.GetTime() and resources >= 20 and not bot.wantsExo
+--
+--         if armory and techTree:GetHasTech(kTechId.MinesTech, true) and not marine:GetWeaponInHUDSlot(4) and (GetWarmupActive() or shouldBuyMines) then
+--             weight = GetMarineObjectiveBaselineWeight( kMarineBrainObjectiveTypes.BuyMines )
+--         end
+--
+--         return
+--         {
+--             name = name,
+--             weight = weight,
+--             structure = armory,
+--             buyId = kTechId.LayMines,
+--             updateKey = 'lastBoughtMines',
+--             validate = kValidateBuyTechId,
+--             perform = kExecBuyTechId
+--         }
+--     end, -- BUY JETPACK
 
     function(bot, brain, marine)
         PROFILE("MarineBrain - GuardNearestHuman")
@@ -2602,65 +2608,66 @@ kMarineBrainObjectiveActions =
         }
     end, -- GUARD EXO (MAINTAIN DIST, RANDOM LOOK AROUND)
 
-    function(bot, brain, marine)
-        --[[
-        This action is only applicable when exploring, and move near a Res Node in the early game.
-        The idea behind it is for Marines to build their naturals faster, instead of skipping past.
-        --]]
-        PROFILE("MarineBrain  -  AwaitEarlyResPlacement")
-
-        local name, weight = MarineObjectiveWeights:Get(kMarineBrainObjectiveTypes.AwaitEarlyResPlacement)
-
-        local awaitableResNode
-        local threatGatewayPos
-
-        local roundMinutesPassed = GetGameMinutesPassed() --returns decimal values (e.g. 63 second == 1.05), so use math.random to add minor variance
-        local teamBrain = GetTeamBrain(marine:GetTeamNumber())
-        local enemyTeamLoc = GetTeamBrain(GetEnemyTeamNumber(teamBrain.teamNumber)).initialTechPointLoc
-
-        local limit = kMarineAwaitEarlyResDropLimit + math.random(0.01, 0.15)
-
-        if roundMinutesPassed <= limit then
-        --keep this behavior only to early-game
-
-            local naturals = GetLocationGraph():GetNaturalRtsForTechpoint(teamBrain.initialTechPointLoc)
-            local resNodes = GetEntities( "ResourcePoint" )
-
-            for i = 1, #resNodes do
-
-                local resNode = resNodes[i]
-                local location = resNode:GetLocationName()
-                local numOthers = teamBrain:GetNumOthersAssignedToEntity(marine, resNode:GetId())
-
-                --Skip our starting techpoint and don't wait for nodes with structures attached (assume this or other bots will be assigned BuildStructure)
-                if naturals:Contains(location) and not resNode:GetAttached() and numOthers == 0 then
-
-                    --Determine which gateway hostiles would be most likely to enter this location from
-                    threatGatewayPos = GetThreatGatewayForLocation(location, enemyTeamLoc)
-                    awaitableResNode = resNode
-                        break
-
-                    end
-
-                end
-
-            end
-
-        if not awaitableResNode then
-            return kNilAction
-        end
-
-        return
-        {
-            name = name,
-            weight = weight,
-            resNode = awaitableResNode,
-            threatGatewayPos = threatGatewayPos,
-            limit = limit,
-            validate = kValidateAwaitEarlyResDrop,
-            perform = kExecAwaitEarlyResPlacement
-        }
-    end,  --AWAIT BUILDING PLACEMENT
+-- not possible in combat
+--     function(bot, brain, marine)
+--         --[[
+--         This action is only applicable when exploring, and move near a Res Node in the early game.
+--         The idea behind it is for Marines to build their naturals faster, instead of skipping past.
+--         --]]
+--         PROFILE("MarineBrain  -  AwaitEarlyResPlacement")
+--
+--         local name, weight = MarineObjectiveWeights:Get(kMarineBrainObjectiveTypes.AwaitEarlyResPlacement)
+--
+--         local awaitableResNode
+--         local threatGatewayPos
+--
+--         local roundMinutesPassed = GetGameMinutesPassed() --returns decimal values (e.g. 63 second == 1.05), so use math.random to add minor variance
+--         local teamBrain = GetTeamBrain(marine:GetTeamNumber())
+--         local enemyTeamLoc = GetTeamBrain(GetEnemyTeamNumber(teamBrain.teamNumber)).initialTechPointLoc
+--
+--         local limit = kMarineAwaitEarlyResDropLimit + math.random(0.01, 0.15)
+--
+--         if roundMinutesPassed <= limit then
+--         --keep this behavior only to early-game
+--
+--             local naturals = GetLocationGraph():GetNaturalRtsForTechpoint(teamBrain.initialTechPointLoc)
+--             local resNodes = GetEntities( "ResourcePoint" )
+--
+--             for i = 1, #resNodes do
+--
+--                 local resNode = resNodes[i]
+--                 local location = resNode:GetLocationName()
+--                 local numOthers = teamBrain:GetNumOthersAssignedToEntity(marine, resNode:GetId())
+--
+--                 --Skip our starting techpoint and don't wait for nodes with structures attached (assume this or other bots will be assigned BuildStructure)
+--                 if naturals:Contains(location) and not resNode:GetAttached() and numOthers == 0 then
+--
+--                     --Determine which gateway hostiles would be most likely to enter this location from
+--                     threatGatewayPos = GetThreatGatewayForLocation(location, enemyTeamLoc)
+--                     awaitableResNode = resNode
+--                         break
+--
+--                     end
+--
+--                 end
+--
+--             end
+--
+--         if not awaitableResNode then
+--             return kNilAction
+--         end
+--
+--         return
+--         {
+--             name = name,
+--             weight = weight,
+--             resNode = awaitableResNode,
+--             threatGatewayPos = threatGatewayPos,
+--             limit = limit,
+--             validate = kValidateAwaitEarlyResDrop,
+--             perform = kExecAwaitEarlyResPlacement
+--         }
+--     end,  --AWAIT BUILDING PLACEMENT
 
     function(bot, brain, marine)
 
@@ -4526,4 +4533,167 @@ function CreateMarineBrainSenses()
 
     return s
 
+end
+
+local function GotRequirements(player, upgrade)
+    if upgrade then
+        local requirements = upgrade:GetRequirements()
+        -- does this up needs other ups??
+        if requirements then
+            local requiredUpgrade = GetUpgradeFromId(requirements)
+            return player:GetHasCombatUpgrade(requiredUpgrade:GetId())
+        else
+            return true
+        end
+    end
+    return false
+end
+
+local function CreateBuyCombatUpgradeAction(techId, weightIfCanDo)
+    return function(bot, brain)
+        local name = "combat_" .. EnumToString( kTechId, techId )
+        local weight = 0.0
+        local upgrade = GetUpgradeFromTechId(techId)
+        local player = bot:GetPlayer()
+
+        -- limit how often we can try to buy things
+        if upgrade ~= nil and not(bot.lastCombatBuyAction and bot.lastCombatBuyAction + 5 > Shared.GetTime()) then
+            local resources = player:GetResources()
+            local cost = upgrade:GetLevels()
+            local hasUpgrade = player:GetHasCombatUpgrade(upgrade:GetId())
+            local doable = GotRequirements(player, upgrade)
+            local hardCapped = upgrade:GetIsHardCappedForBots(player)
+
+            if not hardCapped and doable and not hasUpgrade and cost <= resources then
+                weight = weightIfCanDo
+            end
+
+            if bot.helpAbility < 0.1 then
+                -- no welder
+                if techId == kTechId.Welder then
+                    weight = 0.0
+                end
+            end
+
+            if bot.trickyAbility then
+                -- save res for exo
+                if techId == kTechId.HeavyMachineGun
+                        or techId == kTechId.Flamethrower
+                        or techId == kTechId.GrenadeLauncher
+                        or techId == kTechId.Shotgun
+                        or techId == kTechId.Jetpack
+                then
+                    weight = 0.0
+                end
+
+                if kCannonCost and techId == kTechId.Cannon then
+                    weight = 0.0
+                end
+                if kCannonCost and techId == kTechId.Submachinegun then
+                    weight = 0.0
+                end
+                if kShieldGeneratorCost and techId == kTechId.ShieldGenerator then
+                    weight = 0.0
+                end
+            end
+
+            if bot.aimAbility < 0.5 then
+                -- go for flamethrower
+                if techId == kTechId.HeavyMachineGun
+                        or techId == kTechId.GrenadeLauncher then
+                    weight = 0.0
+                end
+                if kCannonCost and techId == kTechId.Cannon then
+                    weight = 0.0
+                end
+                if kSubmachinegunCost and techId == kTechId.Submachinegun then
+                    weight = 0.0
+                end
+            end
+
+
+            if kCannonCost and player:GetHasCombatUpgrade(kTechId.Cannon) then
+                if techId == kTechId.HeavyMachineGun
+                        or techId == kTechId.Flamethrower
+                        or techId == kTechId.GrenadeLauncher
+                        or techId == kTechId.Shotgun
+                then
+                    weight = 0.0
+                end
+
+                if kSubmachinegunCost and techId == kTechId.Submachinegun then
+                    weight = 0.0
+                end
+            end
+            if kSubmachinegunCost and player:GetHasCombatUpgrade(kTechId.Submachinegun) then
+                if techId == kTechId.HeavyMachineGun
+                        or techId == kTechId.Flamethrower
+                        or techId == kTechId.GrenadeLauncher
+                        or techId == kTechId.Shotgun
+                then
+                    weight = 0.0
+                end
+
+                if kCannonCost and techId == kTechId.Cannon then
+                    weight = 0.0
+                end
+            end
+        end
+
+        return {
+            name = name, weight = weight,
+            perform = function(move)
+                bot.lastCombatBuyAction = Shared.GetTime()
+
+                -- todo: support multiple upgrades at a time...?
+                --Log("Trying to upgrade " .. upgrade:GetDescription())
+                local upgradeTable = {}
+                table.insert(upgradeTable, upgrade)
+                player:CoEnableUpgrade(upgradeTable)
+            end
+        }
+    end
+end
+
+local random = math.random()
+local random2 = math.random()
+
+-- todo: don't block movement!!
+-- regen
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.MedPack,		10.0 + random ))
+
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Weapons1,	4.5 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Weapons2,	4.0 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Weapons3,	3.5 + random ))
+
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Armor1,		5.0 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Armor2,		4.5 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Armor3,      4.0 + random ))
+
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Scan,        3.0 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Welder,      4.0 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.CatPack,     3.0 + random ))
+-- fast sprint
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.PhaseTech, 		2.0 + random ))
+-- fast reload
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.AdvancedWeaponry,	4.0 + random ))
+
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Shotgun,     4.0 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Flamethrower,     1.0 + random ))
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.HeavyMachineGun,     1.0 + random ))
+    --table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.GrenadeLauncher,     1.0 + random2 ))
+
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Jetpack, 2.5 + random ))
+
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.DualMinigunExosuit, 4.0 + random ))
+table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.DualRailgunExosuit, 4.0 + random2 ))
+
+if kShieldGeneratorCost then
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.ShieldGenerator, 4.0 + random2 ))
+end
+if kCannonCost then
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Cannon, 4.0 + random2 ))
+end
+if kSubmachinegunCost then
+    table.insert(kMarineBrainActions, CreateBuyCombatUpgradeAction(kTechId.Submachinegun, 4.0 + random2 ))
 end
