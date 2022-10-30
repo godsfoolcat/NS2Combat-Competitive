@@ -1574,9 +1574,13 @@ function CreateGorgeBrainSenses()
         for i = 1, #targets do
             local healTarget = targets[i]
 
+            -- overtime
+            -- GetHasTimelimitPassed and
+            local timelimitPassed =  not GetHasTimelimitPassed()
+
             local isValidHealable = 
             (
-                ( healTarget.GetIsBuilt and healTarget:GetIsBuilt() ) or  
+                ( timelimitPassed and healTarget.GetIsBuilt and healTarget:GetIsBuilt() ) or
                 ( healTarget:isa("Player") and healTarget:GetIsAlive() )
             )
             if isValidHealable then
