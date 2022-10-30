@@ -252,7 +252,9 @@ function CreateExploreAction( weightIfTargetAcquired, moveToFunction )  --TODO A
         end
 
         if not player.startLocation then
-
+            if bot.startLocation == nil then
+                bot.startLocation = currentLocationName
+            end
             brain:AddVisitedLocation(bot.startLocation)
             player.startLocation = bot.startLocation
             brain.exploreTargetPos = nil
