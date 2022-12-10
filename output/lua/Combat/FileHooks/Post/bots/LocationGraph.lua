@@ -10,9 +10,9 @@ function LocationGraph:InitializeTechpointNaturalRTLocations()
 
         local locations = {}
 
-        for i = 1, #self.resourcePointLocations do
+        for j = 1, #self.resourcePointLocations do
 
-            local rtLocation = self.resourcePointLocations[i]
+            local rtLocation = self.resourcePointLocations[j]
 
             if rtLocation ~= techPointLocation --[[ not self.techPointLocations:Contains(rtLocation) ]] then
 

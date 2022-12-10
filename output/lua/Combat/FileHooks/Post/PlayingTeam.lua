@@ -232,7 +232,7 @@ function PlayingTeam:RespawnPlayer(player, origin, angles)
     else
         Print("PlayingTeam:RespawnPlayer(): No initial tech point.")
     end
-    
+
     return success
 
 end

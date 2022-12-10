@@ -1426,7 +1426,7 @@ function CreateGorgeBrainSenses()
                         - Should add filtering for what's Infested and isn't
                         - Ideally, this should filter based on what's cysted (e.g. infested, _now_)
                     --]]
-                    if not target:GetIsBuilt() then
+                    if not target:GetIsBuilt() and (not HasMixin(target, "Live") or target:GetIsAlive()) then
                         return select(2, GetTunnelDistanceForAlien(gorge, target))
                     end
                 end)

@@ -124,6 +124,10 @@ local function PerformMove( alienPos, targetPos, bot, brain, move )
         move.commands = AddMoveCommand( move.commands, Move.Jump )
         brain.timeOfJump = time
 
+        if fade:GetIsOnGround() then -- assume we're in some jump-locked state
+            brain:ResetBlinkSequence()
+        end
+
     end
 
     local canMetab =
@@ -221,7 +225,7 @@ local function PerformAttackEntity( eyePos, bestTarget, bot, brain, move )
     end
 
     local idealMoveTo = GetPositionBehindTarget( fade, bestTarget, kFadeAttackRange )
-    doFire = doFire and bot.aim:UpdateAim(bestTarget, aimPos, kBotAccWeaponGroup.Melee)
+    doFire = doFire and bot.aim:UpdateAim(bestTarget, aimPos, kBotAccWeaponGroup.Swipe)
 
     --TODO Rand "blink-behind" chance? Above? Just bail? ...hmm, options
 

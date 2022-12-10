@@ -282,13 +282,16 @@ local function PerformAttackEntity( eyePos, bestTarget, bot, brain, move )
 
         brain.lastIsStomping = isStomping
 
+        local targetIsStompable = onosPlayer:GetEnergy() > kStompEnergyCost and
+            HasMixin(bestTarget, "Stun") and not bestTarget:GetIsStunned() and
+            distance <= kBotStompRange and
+            (not bestTarget:isa("JetpackMarine") or bestTarget:GetIsOnGround())
+
         if not brain.wantsToStomp and tNow - onosPlayer:GetTimeLastDamageTaken() < 1 and SwitchToBoneShield(onosPlayer, brain) then
             move.commands = AddMoveCommand( move.commands, Move.PrimaryAttack )
         elseif hasStomp and
                 ( ( tNow - brain.timeLastStomp > 6 ) or (brain.wantsToStomp) ) and
-                HasMixin(bestTarget, "Stun") and not bestTarget:GetIsStunned() and
-                onosPlayer:GetEnergy() > kStompEnergyCost and
-                distance <= kBotStompRange then
+                targetIsStompable then
 
             local isStompEquipped = hasStomp and goreWeapon:GetIsActive()
             local viewDirection = GetNormalizedVectorXZ( onosPlayer:GetViewCoords().zAxis )

@@ -8,7 +8,7 @@ local kSkulkPressureEnemyThreshold = 0.7
 
 local kSkulkEarlyRetreatThreshold = 2.0
 
-local kSkulkDodgeOscillation = 2.2
+local kSkulkDodgeOscillation = 2.8
 
 local kSkulkPheromoneWeights = {
     [kTechId.ThreatMarker] = 5.0,
@@ -94,13 +94,15 @@ local function PerformMove( alienPos, targetPos, bot, brain, move )
         end
 
         if not isSneaking and disiredDiff:GetLengthSquared() > 9 and
+            GetIsTechUnlocked(player, kTechId.Leap) and player:GetEnergy() / 100 > 0.8 and
             Math.DotProduct(player:GetVelocity():GetUnit(), disiredDiff:GetUnit()) > 0.6 then
         
+            local viewDir = player:GetViewCoords().zAxis + Vector(0, 0.8, 0)
+            bot:GetMotion():SetDesiredViewTarget( player:GetEyePos() + viewDir )
+
             -- leap, maybe?
-            if player:GetEnergy() / 100 > 0.9 then
                 move.commands = AddMoveCommand( move.commands, Move.SecondaryAttack )
             end
-        end
 
     else -- jammed up or stuck!
         -- Dont use MoveTarget, as alien bots could be in a tunnel (with no navmesh!)
@@ -384,7 +386,7 @@ local function PerformAttackEntity( eyePos, bestTarget, lastSeenPos, bot, brain,
         local sin = math.sin(Shared.GetTime() * kSkulkDodgeOscillation)
         local dir = (aimPosPlusVel - eyePos):GetUnit():CrossProduct(Vector(0, 1, 0))
         dir:Normalize()
-        dir:Scale(sin * Clamp(distance / 2.5, 3.0, 6.0))
+        dir:Scale(sin * Clamp(distance / 2.5, 3.0, 7.0))
 
         -- Don't use the offset point if it is not on the same "connected pathing" as the target
         -- use a distance heuristic, if the offset is closer than the player's dist to pathing then assume it's on a different chunk of pathing
@@ -503,7 +505,7 @@ local kValidateGuardHumans = function(bot, brain, skulk, action)
         local roughNextPoint = currentPos + bot:GetMotion().currMoveDir * delta:GetLength()    
 
         if (closestPoint - roughNextPoint):GetLengthXZ() > maxDistOffPath and (groundPoint - currentPos):GetLengthXZ() > 0.1 then
-            Log("[%s] GuardedHuman - Target left nav-mesh ", skulk)
+            -- Log("[%s] GuardedHuman - Target left nav-mesh ", skulk)
             return false
         end
     end
@@ -653,7 +655,7 @@ local kSkulkBrainObjectiveTypes = enum({
     "Evolve",
     "Pheromone",
     "GoToCommPing",
-    "PressureEnemyNaturals",
+    --"PressureEnemyNaturals",
     "GuardHumans"
 })
 
@@ -766,96 +768,96 @@ kSkulkBrainObjectives =
     ------------------------------------------
     CreateAlienGoToCommPingAction(SkulkObjectiveWeights, kSkulkBrainObjectiveTypes.GoToCommPing, PerformMove),
 
-    ------------------------------------------
-    --  Pressure Enemy Naturals
-    ------------------------------------------
-    function(bot, brain, skulk)
-
-        local name, weight = SkulkObjectiveWeights:Get(kSkulkBrainObjectiveTypes.PressureEnemyNaturals)
-
-        local teamBrain = GetTeamBrain(skulk:GetTeamNumber())
-        local enemyTeam = GetEnemyTeamNumber(skulk:GetTeamNumber())
-        local enemyTechpoint = GetTeamBrain(enemyTeam).initialTechPointLoc
-
-        local locGraph = GetLocationGraph()
-
-        -- Don't go pressuring naturals if we won't survive
-        if skulk:GetHealthFraction() < 0.4 then
-            return kNilAction
-        end
-
-        -- assume any "decent" player will know where the enemy spawned based on map knowledge
-        local naturals = locGraph:GetNaturalRtsForTechpoint(enemyTechpoint)
-
-        if not skulk:GetLocationName() or skulk:GetLocationName() == "" or #naturals == 0 then
-            return kNilAction
-        end
-
-        -- BOT-TODO: enable once tested
-        -- if bot.aggroAbility < kSkulkPressureEnemyThreshold then
-        --     return kNilAction
-        -- end
-
-        local roundTime = GetGameMinutesPassed()
-        local maxBots = roundTime <= kSkulkPressureEarlyNaturalsLimit and 2 or 1
-        
-        -- Use goal rather than entity assignment to ensure bots in combat still count as being assigned to pressure naturals
-        if teamBrain:GetNumOtherBotsWithGoal(bot, name) >= maxBots then
-            return kNilAction
-        end
-        
-        local bestDist = 999.0
-        local bestNatural = nil
-        local bestPos = nil
-        
-        -- Find the closest natural RT to us to go pressure
-        for i = 1, #naturals do
-            
-            local natural = naturals[i]
-            
-            local gatewayInfo = locGraph:GetGatewayDistance(skulk:GetLocationName(), natural)
-            
-            if gatewayInfo then
-                
-                -- Don't go for naturals that already have a bot assigned to them or present
-                local assigned = teamBrain:GetNumOthersAssignedToEntity(skulk, "assault-" .. natural)
-                local isFriendlyPresent = GetLocationContention():GetLocationGroup(natural):GetNumAlienPlayers() > 0
-
-                if assigned == 0 and not isFriendlyPresent then
-                    local distance = select(2, GetTunnelDistanceForAlien(skulk, gatewayInfo.exitGatePos, natural))
-
-                    if distance < bestDist then
-                        bestDist = bestDist
-                        bestNatural = natural
-                        bestPos = gatewayInfo.exitGatePos
-                    end
-
-                end
-
-            end
-
-        end
-
-        if not bestNatural then
-            return kNilAction
-        end
-
-        -- Find the first gateway back to the enemy techpoint (to look at)
-        local threatGateway = GetThreatGatewayForLocation(bestNatural, enemyTechpoint)
-
-        -- Log("[%s] wants to pressure natural %s of techpoint %s", skulk, bestNatural, enemyTechpoint)
-
-        return {
-            name = name,
-            weight = weight,
-            location = bestNatural,
-            position = bestPos,
-            threatGatewayPos = threatGateway,
-            validate = kValidatePressureNaturals,
-            perform = kExecPressureNaturals
-        }
-
-    end,  --RUSH ENEMY NATURALS
+    --------------------------------------------
+    ----  Pressure Enemy Naturals
+    --------------------------------------------
+    --function(bot, brain, skulk)
+    --
+    --    local name, weight = SkulkObjectiveWeights:Get(kSkulkBrainObjectiveTypes.PressureEnemyNaturals)
+    --
+    --    local teamBrain = GetTeamBrain(skulk:GetTeamNumber())
+    --    local enemyTeam = GetEnemyTeamNumber(skulk:GetTeamNumber())
+    --    local enemyTechpoint = GetTeamBrain(enemyTeam).initialTechPointLoc
+    --
+    --    local locGraph = GetLocationGraph()
+    --
+    --    -- Don't go pressuring naturals if we won't survive
+    --    if skulk:GetHealthFraction() < 0.4 then
+    --        return kNilAction
+    --    end
+    --
+    --    -- assume any "decent" player will know where the enemy spawned based on map knowledge
+    --    local naturals = locGraph:GetNaturalRtsForTechpoint(enemyTechpoint)
+    --
+    --    if not skulk:GetLocationName() or skulk:GetLocationName() == "" or #naturals == 0 then
+    --        return kNilAction
+    --    end
+    --
+    --    -- BOT-TODO: enable once tested
+    --    -- if bot.aggroAbility < kSkulkPressureEnemyThreshold then
+    --    --     return kNilAction
+    --    -- end
+    --
+    --    local roundTime = GetGameMinutesPassed()
+    --    local maxBots = roundTime <= kSkulkPressureEarlyNaturalsLimit and 2 or 1
+    --
+    --    -- Use goal rather than entity assignment to ensure bots in combat still count as being assigned to pressure naturals
+    --    if teamBrain:GetNumOtherBotsWithGoal(bot, name) >= maxBots then
+    --        return kNilAction
+    --    end
+    --
+    --    local bestDist = 999.0
+    --    local bestNatural = nil
+    --    local bestPos = nil
+    --
+    --    -- Find the closest natural RT to us to go pressure
+    --    for i = 1, #naturals do
+    --
+    --        local natural = naturals[i]
+    --
+    --        local gatewayInfo = locGraph:GetGatewayDistance(skulk:GetLocationName(), natural)
+    --
+    --        if gatewayInfo then
+    --
+    --            -- Don't go for naturals that already have a bot assigned to them or present
+    --            local assigned = teamBrain:GetNumOthersAssignedToEntity(skulk, "assault-" .. natural)
+    --            local isFriendlyPresent = GetLocationContention():GetLocationGroup(natural):GetNumAlienPlayers() > 0
+    --
+    --            if assigned == 0 and not isFriendlyPresent then
+    --                local distance = select(2, GetTunnelDistanceForAlien(skulk, gatewayInfo.exitGatePos, natural))
+    --
+    --                if distance < bestDist then
+    --                    bestDist = bestDist
+    --                    bestNatural = natural
+    --                    bestPos = gatewayInfo.exitGatePos
+    --                end
+    --
+    --            end
+    --
+    --        end
+    --
+    --    end
+    --
+    --    if not bestNatural then
+    --        return kNilAction
+    --    end
+    --
+    --    -- Find the first gateway back to the enemy techpoint (to look at)
+    --    local threatGateway = GetThreatGatewayForLocation(bestNatural, enemyTechpoint)
+    --
+    --    -- Log("[%s] wants to pressure natural %s of techpoint %s", skulk, bestNatural, enemyTechpoint)
+    --
+    --    return {
+    --        name = name,
+    --        weight = weight,
+    --        location = bestNatural,
+    --        position = bestPos,
+    --        threatGatewayPos = threatGateway,
+    --        validate = kValidatePressureNaturals,
+    --        perform = kExecPressureNaturals
+    --    }
+    --
+    --end,  --RUSH ENEMY NATURALS
 
     -------------------------------------------
     -- Guard Player

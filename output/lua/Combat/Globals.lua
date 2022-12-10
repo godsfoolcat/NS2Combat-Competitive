@@ -9,12 +9,12 @@ kMaxRelevancyDistance = 45 -- was 40
 -- Experience based values like avgXpAmount is still in ExperienceData
 
 -- Welcome Message that every player receives who joined our game
-combatModifiedMessage = "Contact ailmanki#8429 (Meteru) on Discord to report issues."
+combatModifiedMessage = "Welcome to Combat Mod! (This is not the default game mode.)"
 combatWelcomeMessage = {combatModifiedMessage,
-                        "Welcome to Combat Mod! (This is not the default gamemode.)",
-                        "This mod gives you levels and upgrade points, which you can see on",
-                        "your Experience Bar at the bottom of the screen.",
-                        "Get experience from kills and press B to spend points!"
+                        "This mod gives you levels and points, which you can see on your",
+                        "Experience Bar at the bottom of the screen.",
+                        "Get experience from kills and press B to upgrade!",
+                        "Contact ailmanki#8429 (Meteru) on Discord to report issues."
 }
 
 

@@ -288,6 +288,10 @@ local function PerformAttackStructure( eyePos, target, lastSeenPos, bot, brain, 
         hasClearShot = bot:GetBotCanSeeTarget( target )
     end
 
+    if weaponType == GrenadeLauncher.kMapName then
+        dist = math.max(0, dist - (HasMixin(target, "Extents") and target:GetExtents():GetLengthXZ() or 0))
+    end
+
     if not hasClearShot then
         PerformMove( eyePos, aimPos, bot, brain, move )
 
@@ -318,6 +322,9 @@ local function PerformAttackStructure( eyePos, target, lastSeenPos, bot, brain, 
                 local aimTarg = aimDir + Vector( eyePos.x, eyePos.y, eyePos.z )
 
                 doFire = bot.aim and bot.aim:UpdateAim(target, aimTarg, kBotAccWeaponGroup.Bullets) --TODO Make GL/Balistic acc grp
+
+            elseif target:isa("Embryo") then
+                bot:GetMotion():SetDesiredViewTarget( aimPos )
 
             else
                 doFire = bot.aim:UpdateAim(target, aimPos, kBotAccWeaponGroup.Bullets)
@@ -464,7 +471,10 @@ local function PerformAttackEntity( eyePos, target, lastSeenPos, bot, brain, mov
 
         bot.lastSeenEnemy = time
 
-        if dist <= 40 and dist > activeWepIdealRange then
+        local dir = GetNormalizedVectorXY( target:GetOrigin() - player:GetOrigin() )
+        local dot = target.GetVelocity and GetNormalizedVectorXZ(target:GetVelocity()):DotProduct(dir) or 0
+
+        if dist <= 40 and dist > activeWepIdealRange and dot > 0.5 then
             bot:GetMotion():SetDesiredMoveTarget( nil ) --halt and let them come to us
 
         elseif dist > activeWepIdealRange then
@@ -501,6 +511,21 @@ local function PerformAttackEntity( eyePos, target, lastSeenPos, bot, brain, mov
             bot:GetMotion():SetDesiredMoveDirection( nil )
         else
             doFire = doFire and bot.aim:UpdateAim(target, aimPos, kBotAccWeaponGroup.Bullets)
+
+        end
+
+        local weapon = player:GetActiveWeapon()
+
+        if weapon and weapon:GetMapName() == GrenadeLauncher.kMapName then
+
+            -- fall back if we have a grenade launcher and we'd blow ourselves up
+            if dist < 5.5 then
+                doFire = false
+                shouldStrafe = false
+
+                bot:GetMotion():SetDesiredMoveTarget( nil )
+                bot:GetMotion():SetDesiredMoveDirection(player:GetViewCoords().zAxis * -1)
+            end
 
         end
 
@@ -847,11 +872,11 @@ local kMarineBrainObjectiveTypes = enum({
     "BuyExo",
     "BuyWeapons",
     "BuyJetpack",
-    "PressureEnemyNaturals",
+    --"PressureEnemyNaturals",
     "BuyMines",
     "GuardNearestHuman",
     "GuardNearestExo",
-    "AwaitEarlyResPlacement",
+    --"AwaitEarlyResPlacement",
 })
 
 local MarineObjectiveWeights = MakeBotActionWeights(kMarineBrainObjectiveTypes, kMarineBrainObjectiveActionTypesOrderScale)
@@ -1194,7 +1219,7 @@ local kExecFollowOrder = function(move, bot, brain, marine, action)
     end
 
     if marine:GetCurrentOrder() ~= order then
-        Log("%s completed order %s", marine, order)
+        -- Log("%s completed order %s", marine, order)
         return kPlayerObjectiveComplete
     end
 
@@ -1332,7 +1357,7 @@ local kExecBuyWeapons = function(move, bot, brain, marine, action)
         bot:GetMotion():SetDesiredViewTarget( targetArmory:GetEngagementPoint() )
         bot:GetMotion():SetDesiredMoveTarget( nil )
         if brain.activeWeaponPurchaseTechId ~= nil then
-            Log("Marine-%s Attempting to Buy [%s]", marine:GetId(), kTechId[brain.activeWeaponPurchaseTechId])  --string version
+            -- Log("Marine-%s Attempting to Buy [%s]", marine:GetId(), kTechId[brain.activeWeaponPurchaseTechId])  --string version
         end
         marine:ProcessBuyAction({ brain.activeWeaponPurchaseTechId })
         brain.activeWeaponPurchaseTechId = nil
@@ -1615,7 +1640,7 @@ local kExecBuyTechId = function(move, bot, brain, marine, action)
         bot:GetMotion():SetDesiredViewTarget( structure:GetEngagementPoint() )
         bot:GetMotion():SetDesiredMoveTarget( nil )
         
-        Log("[%s] Attempting to Buy [%s]", marine, kTechId[buyId])  --string version
+        -- Log("[%s] Attempting to Buy [%s]", marine, kTechId[buyId])  --string version
         marine:ProcessBuyAction({ buyId })
         SwitchToPrimary(marine)
 
@@ -1633,81 +1658,81 @@ local kExecBuyTechId = function(move, bot, brain, marine, action)
 
 end
 
-local kExecAwaitEarlyResPlacement = function(move, bot, brain, marine, action)
-    PROFILE("MarineBrain - ExecAwaitEarlyResPlacement")
-
-    local awaitableResNode = action.resNode
-
-    brain.teamBrain:AssignPlayerToEntity( marine, awaitableResNode:GetId() )
-
-    if GetBotWalkDistance(marine, awaitableResNode) < 6 then
-
-        bot:GetMotion():SetDesiredMoveTarget( nil )
-
-        local time = Shared.GetTime()
-
-        if brain.lastCommanderRequestTime + brain.kCommanderRequestRateTime < time then
-            if math.random(0,1) < 0.5 then
-                CreateVoiceMessage( marine, kVoiceId.MarineRequestStructure )
-                brain.lastCommanderRequestTime = time + math.random(0.25, 1.5) --cheese, but adds variance
-            end
-        end
-
-        if action.threatGatewayPos then
-            -- Look at where we most expect hostiles to enter from
-            LookAroundAtTarget( bot, marine, action.threatGatewayPos )
-        else -- fallback, should never be taken
-            LookAroundRandomly( bot, marine )
-        end
-
-    else
-        PerformMove( marine:GetOrigin() , awaitableResNode:GetOrigin(), bot, brain, move)
-    end
-
-end
-
-local kExecPressureNaturals = function(move, bot, brain, marine, action)
-    PROFILE("MarineBrain - ExecPressureNaturals")
-
-    local threatPos = action.threatGatewayPos
-    local position = action.position
-
-    brain.teamBrain:AssignPlayerToEntity(marine, "assault-" .. action.location)
-
-    if marine:GetLocationName() == action.location and marine:GetOrigin():GetDistance(threatPos) < 18.0 then
-
-        bot:GetMotion():SetDesiredMoveTarget( nil )
-
-        LookAroundAtTarget( bot, marine, threatPos )
-
-        local now = Shared.GetTime()
-
-    --TODO Try selecting random point around RT (on mesh ofc), and reselect it every X time...this should not impact idle timer
-    --e.g. Like "patroling" area
-        if not action.idleStart then
-
-            action.idleStart = now
-
-        elseif action.idleStart + 15 < now then
-        --wait a short duration for any hostiles to come through or for any structures to be dropped, etc.
-
-            CreateVoiceMessage( marine, kVoiceId.MarineTaunt ) -- for fun
-            return kPlayerObjectiveComplete
-
-        end
-
-    elseif marine:GetLocationName() == action.location then
-    -- move closer to the gateway we think hostiles will be coming through
-
-        PerformMove( marine:GetOrigin(), threatPos, bot, brain, move )
-
-    else
-
-        PerformMove( marine:GetOrigin(), position, bot, brain, move )
-
-    end
-
-end
+--local kExecAwaitEarlyResPlacement = function(move, bot, brain, marine, action)
+--    PROFILE("MarineBrain - ExecAwaitEarlyResPlacement")
+--
+--    local awaitableResNode = action.resNode
+--
+--    brain.teamBrain:AssignPlayerToEntity( marine, awaitableResNode:GetId() )
+--
+--    if GetBotWalkDistance(marine, awaitableResNode) < 6 then
+--
+--        bot:GetMotion():SetDesiredMoveTarget( nil )
+--
+--        local time = Shared.GetTime()
+--
+--        if brain.lastCommanderRequestTime + brain.kCommanderRequestRateTime < time then
+--            if math.random(0,1) < 0.5 then
+--                CreateVoiceMessage( marine, kVoiceId.MarineRequestStructure )
+--                brain.lastCommanderRequestTime = time + math.random(0.25, 1.5) --cheese, but adds variance
+--            end
+--        end
+--
+--        if action.threatGatewayPos then
+--            -- Look at where we most expect hostiles to enter from
+--            LookAroundAtTarget( bot, marine, action.threatGatewayPos )
+--        else -- fallback, should never be taken
+--            LookAroundRandomly( bot, marine )
+--        end
+--
+--    else
+--        PerformMove( marine:GetOrigin() , awaitableResNode:GetOrigin(), bot, brain, move)
+--    end
+--
+--end
+--
+--local kExecPressureNaturals = function(move, bot, brain, marine, action)
+--    PROFILE("MarineBrain - ExecPressureNaturals")
+--
+--    local threatPos = action.threatGatewayPos
+--    local position = action.position
+--
+--    brain.teamBrain:AssignPlayerToEntity(marine, "assault-" .. action.location)
+--
+--    if marine:GetLocationName() == action.location and marine:GetOrigin():GetDistance(threatPos) < 18.0 then
+--
+--        bot:GetMotion():SetDesiredMoveTarget( nil )
+--
+--        LookAroundAtTarget( bot, marine, threatPos )
+--
+--        local now = Shared.GetTime()
+--
+--    --TODO Try selecting random point around RT (on mesh ofc), and reselect it every X time...this should not impact idle timer
+--    --e.g. Like "patroling" area
+--        if not action.idleStart then
+--
+--            action.idleStart = now
+--
+--        elseif action.idleStart + 15 < now then
+--        --wait a short duration for any hostiles to come through or for any structures to be dropped, etc.
+--
+--            CreateVoiceMessage( marine, kVoiceId.MarineTaunt ) -- for fun
+--            return kPlayerObjectiveComplete
+--
+--        end
+--
+--    elseif marine:GetLocationName() == action.location then
+--    -- move closer to the gateway we think hostiles will be coming through
+--
+--        PerformMove( marine:GetOrigin(), threatPos, bot, brain, move )
+--
+--    else
+--
+--        PerformMove( marine:GetOrigin(), position, bot, brain, move )
+--
+--    end
+--
+--end
 
 
 kMarineBrainObjectiveActions =
@@ -1823,8 +1848,8 @@ kMarineBrainObjectiveActions =
             local numOthers = teamBrain:GetNumOthersAssignedToEntity(marine, threat.entId)
             local numAssigned = teamBrain:GetNumOtherBotsWithGoalDetails(bot, name, "location", threatLoc)
 
-            -- include bots assigned to PressureEnemyNaturals as well
-            numAssigned = numAssigned + teamBrain:GetNumOthersAssignedToEntity(marine, "assault-" .. threatLoc)
+            ---- include bots assigned to PressureEnemyNaturals as well
+            --numAssigned = numAssigned + teamBrain:GetNumOthersAssignedToEntity(marine, "assault-" .. threatLoc)
 
             -- Prioritize buddying-up with another bot attacking this structure, even if we have to travel a ways
             local dist = structureThreat.distance * (numAssigned == 1 and 0.8 or 1.0)
@@ -2158,7 +2183,6 @@ kMarineBrainObjectiveActions =
         end
 
         if bestStructure and numMines < wantedMines then
-            Log("[%s]: Valid mine placement on %s in %s, mines: %s", marine, bestStructure, marine:GetLocationName(), numMines)
 
             local ang = math.random() * math.pi * 2
             local kPlaceDist = bestStructure:GetExtents():GetLengthXZ() + 1.25
@@ -2669,97 +2693,97 @@ kMarineBrainObjectiveActions =
 --         }
 --     end,  --AWAIT BUILDING PLACEMENT
 
-    function(bot, brain, marine)
-
-        local name, weight = MarineObjectiveWeights:Get(kMarineBrainObjectiveTypes.PressureEnemyNaturals)
-
-        local sdb = brain:GetSenses()
-        local teamBrain = GetTeamBrain(marine:GetTeamNumber())
-        local enemyTeam = GetEnemyTeamNumber(marine:GetTeamNumber())
-        local enemyTechpoint = GetTeamBrain(enemyTeam).initialTechPointLoc
-
-        local locGraph = GetLocationGraph()
-
-        local ammoFraction = sdb:Get("ammoFraction")
-        local healthFraction = marine:GetHealthFraction()
-
-        -- Don't go pressuring naturals if we won't survive
-        if ammoFraction < 0.2 or healthFraction < 0.4 then
-            return kNilAction
-        end
-
-        -- assume any "decent" player will know where the enemy spawned based on map knowledge
-        local naturals = locGraph:GetNaturalRtsForTechpoint(enemyTechpoint)
-
-        if not marine:GetLocationName() or marine:GetLocationName() == "" or #naturals == 0 then
-            return kNilAction
-        end
-
-        -- BOT-TODO: enable once tested
-        -- if bot.aggroAbility < kMarinePressureEnemyThreshold then
-        --     return kNilAction
-        -- end
-
-        local roundTime = GetGameMinutesPassed()
-        local maxBots = roundTime <= kMarinePressureEarlyNaturalsLimit and 2 or 1
-
-        -- Use goal rather than entity assignment to ensure bots in combat still count as being assigned to pressure naturals
-        if teamBrain:GetNumOtherBotsWithGoal(bot, name) >= maxBots then
-            return kNilAction
-        end
-
-        local bestDist = 999.0
-        local bestNatural = nil
-        local bestPos = nil
-
-        -- Find the closest natural RT to us to go pressure
-        for i = 1, #naturals do
-
-            local natural = naturals[i]
-
-            local gatewayInfo = locGraph:GetGatewayDistance(marine:GetLocationName(), natural)
-
-            if gatewayInfo then
-
-                -- The guts of GetBotWalkDistance, but we already know our source and target locations
-                local walkDist = marine:GetOrigin():GetDistance(gatewayInfo.enterGatePos) + gatewayInfo.distance
-
-                -- Don't go for naturals that already have a bot assigned to them or present
-                local assigned = teamBrain:GetNumOthersAssignedToEntity(marine, "assault-" .. natural)
-                assigned = assigned + teamBrain:GetNumOtherBotsWithGoalDetails(bot, "TakeTerritory", "location", natural)
-
-                local isMarinePresent = GetLocationContention():GetLocationGroup(natural):GetNumMarinePlayers() > 0
-
-                if assigned == 0 and not isMarinePresent and walkDist < bestDist then
-                    bestDist = bestDist
-                    bestNatural = natural
-                    bestPos = gatewayInfo.exitGatePos
-                end
-
-            end
-
-        end
-
-        if not bestNatural then
-            return kNilAction
-        end
-
-        -- Find the first gateway back to the enemy techpoint (to look at)
-        local threatGateway = GetThreatGatewayForLocation(bestNatural, enemyTechpoint)
-
-        -- Log("[%s] wants to pressure natural %s of techpoint %s", marine, bestNatural, enemyTechpoint)
-
-        return {
-            name = name,
-            weight = weight,
-            location = bestNatural,
-            position = bestPos,
-            threatGatewayPos = threatGateway,
-            validate = kValidatePressureNaturals,
-            perform = kExecPressureNaturals
-        }
-
-    end,  --RUSH ENEMY NATURALS
+    --function(bot, brain, marine)
+    --
+    --    local name, weight = MarineObjectiveWeights:Get(kMarineBrainObjectiveTypes.PressureEnemyNaturals)
+    --
+    --    local sdb = brain:GetSenses()
+    --    local teamBrain = GetTeamBrain(marine:GetTeamNumber())
+    --    local enemyTeam = GetEnemyTeamNumber(marine:GetTeamNumber())
+    --    local enemyTechpoint = GetTeamBrain(enemyTeam).initialTechPointLoc
+    --
+    --    local locGraph = GetLocationGraph()
+    --
+    --    local ammoFraction = sdb:Get("ammoFraction")
+    --    local healthFraction = marine:GetHealthFraction()
+    --
+    --    -- Don't go pressuring naturals if we won't survive
+    --    if ammoFraction < 0.2 or healthFraction < 0.4 then
+    --        return kNilAction
+    --    end
+    --
+    --    -- assume any "decent" player will know where the enemy spawned based on map knowledge
+    --    local naturals = locGraph:GetNaturalRtsForTechpoint(enemyTechpoint)
+    --
+    --    if not marine:GetLocationName() or marine:GetLocationName() == "" or #naturals == 0 then
+    --        return kNilAction
+    --    end
+    --
+    --    -- BOT-TODO: enable once tested
+    --    -- if bot.aggroAbility < kMarinePressureEnemyThreshold then
+    --    --     return kNilAction
+    --    -- end
+    --
+    --    local roundTime = GetGameMinutesPassed()
+    --    local maxBots = roundTime <= kMarinePressureEarlyNaturalsLimit and 2 or 1
+    --
+    --    -- Use goal rather than entity assignment to ensure bots in combat still count as being assigned to pressure naturals
+    --    if teamBrain:GetNumOtherBotsWithGoal(bot, name) >= maxBots then
+    --        return kNilAction
+    --    end
+    --
+    --    local bestDist = 999.0
+    --    local bestNatural = nil
+    --    local bestPos = nil
+    --
+    --    -- Find the closest natural RT to us to go pressure
+    --    for i = 1, #naturals do
+    --
+    --        local natural = naturals[i]
+    --
+    --        local gatewayInfo = locGraph:GetGatewayDistance(marine:GetLocationName(), natural)
+    --
+    --        if gatewayInfo then
+    --
+    --            -- The guts of GetBotWalkDistance, but we already know our source and target locations
+    --            local walkDist = marine:GetOrigin():GetDistance(gatewayInfo.enterGatePos) + gatewayInfo.distance
+    --
+    --            -- Don't go for naturals that already have a bot assigned to them or present
+    --            local assigned = teamBrain:GetNumOthersAssignedToEntity(marine, "assault-" .. natural)
+    --            assigned = assigned + teamBrain:GetNumOtherBotsWithGoalDetails(bot, "TakeTerritory", "location", natural)
+    --
+    --            local isMarinePresent = GetLocationContention():GetLocationGroup(natural):GetNumMarinePlayers() > 0
+    --
+    --            if assigned == 0 and not isMarinePresent and walkDist < bestDist then
+    --                bestDist = bestDist
+    --                bestNatural = natural
+    --                bestPos = gatewayInfo.exitGatePos
+    --            end
+    --
+    --        end
+    --
+    --    end
+    --
+    --    if not bestNatural then
+    --        return kNilAction
+    --    end
+    --
+    --    -- Find the first gateway back to the enemy techpoint (to look at)
+    --    local threatGateway = GetThreatGatewayForLocation(bestNatural, enemyTechpoint)
+    --
+    --    -- Log("[%s] wants to pressure natural %s of techpoint %s", marine, bestNatural, enemyTechpoint)
+    --
+    --    return {
+    --        name = name,
+    --        weight = weight,
+    --        location = bestNatural,
+    --        position = bestPos,
+    --        threatGatewayPos = threatGateway,
+    --        validate = kValidatePressureNaturals,
+    --        perform = kExecPressureNaturals
+    --    }
+    --
+    --end,  --RUSH ENEMY NATURALS
 
     CreateExploreAction( 0.5,
         function( pos, targetPos, bot, brain, move )
@@ -2802,7 +2826,13 @@ local kExecAttackLifeforms = function(move, bot, brain, marine, action)
         brain.teamBrain:UnassignPlayer(marine)
 
         local target = Shared.GetEntity(threat.memory.entId)
-        if sdb:Get("clipFraction") > 0.0 or (target.GetHealthFraction and target:GetHealthFraction() > 0.7 and sdb:Get("ammoFraction") > 0 ) then
+        local dist = GetDistanceToTouch(marine, target)
+        local primaryWeapon = marine:GetWeaponInHUDSlot(1)
+
+        if primaryWeapon and primaryWeapon:GetMapName() == GrenadeLauncher.kMapName and dist < 3.0 then
+            -- Switch to our pistol and fight as a last-ditch effort
+            SwitchToPistol(marine)
+        elseif sdb:Get("clipFraction") > 0.0 or (target.GetHealthFraction and target:GetHealthFraction() > 0.7 and sdb:Get("ammoFraction") > 0 ) then
             SwitchToPrimary(marine)
         else
             SwitchToPistol(marine)
@@ -2989,7 +3019,7 @@ local kExecMountExosuit = function(move, bot, brain, marine, action)
 
     if exo then
         local touchDist = GetDistanceToTouch( marine:GetEyePos(), exo )
-        if touchDist > 1.0 then
+        if touchDist > 1.5 then
             PerformMove( marine:GetOrigin(), exo:GetEngagementPoint(), bot, brain, move )
         else
             brain.buyTargetId = nil
@@ -3016,8 +3046,8 @@ Note: All of kMarineBrainActionTypes are considered to be acted upon immediately
 local kMarineBrainActionTypes = enum({
 --Combat Actions--
     "AttackLifeforms",
-    "AttackStructures",
     "AttackBabblers",
+    "AttackStructures",
     "ReloadPrimaryWeapon",
     "ReloadPistol",
     "FindMedpack",
@@ -4331,10 +4361,6 @@ function CreateMarineBrainSenses()
                     weight = weight * (ent:isa("Player") and 1.5 or 1.0)
                     weight = weight * (mem.entId == db.bot.brain.lastWeldTargetId and 3.0 or 1.0) -- prioritize finishing the last weldable target
 
-                    if ent:GetLocationName() ~= marine:GetLocationName() or marine:GetLocationName() == "" then
-                        Log("[%s]:WeldNearest location mismatch! Target location: %s, Marine location: %s", marine, ent:GetLocationName(), marine:GetLocationName())
-                    end
-
                     if weight > bestWeight then
                         bestWeight = weight
                         bestWeldable = ent
@@ -4434,15 +4460,16 @@ function CreateMarineBrainSenses()
             
     s:Add("nearestBabbler", function(db, marine)
             local marinePos = marine:GetOrigin()
-            local babblers = GetEntitiesWithinRange("Babbler", marinePos, 15)
+            local babblers = GetEntitiesWithinRange("Babbler", marinePos, 10)
 
         --Make sure we "should" be able to see, and it's not attached to a lifeform
             local dist, babbler = GetMinTableEntry( babblers, 
                 function(babbler)
                     local babblerAttached = babbler:GetIsClinged()
                     if not babblerAttached then
-                        if IsPointInCone( babbler:GetOrigin(), marine:GetEyePos(), marine:GetViewCoords().zAxis, db.bot.aim.viewAngle ) then
-                            return marinePos:GetDistance( babbler:GetOrigin() )
+                        local dist = marinePos:GetDistance( babbler:GetOrigin() )
+                        if IsPointInCone( babbler:GetOrigin(), marine:GetEyePos(), marine:GetViewCoords().zAxis, db.bot.aim.viewAngle ) or dist < 1.5 then
+                            return dist
                         else
                             return nil
                         end
@@ -4535,6 +4562,7 @@ function CreateMarineBrainSenses()
 
 end
 
+-- Combat buy uppgrades
 local function GotRequirements(player, upgrade)
     if upgrade then
         local requirements = upgrade:GetRequirements()
@@ -4641,15 +4669,20 @@ local function CreateBuyCombatUpgradeAction(techId, weightIfCanDo)
         end
 
         return {
-            name = name, weight = weight,
-            perform = function(move)
-                bot.lastCombatBuyAction = Shared.GetTime()
+            name = name,
+            weight = weight,
+            techId = techId,
+            perform = function(move, lbot, lbrain, marine, action)
+                PROFILE("MarineBrain - ExecBuyCombatUpgradeAction")
 
+                lbot.lastCombatBuyAction = Shared.GetTime()
+                local ltechId = action.techId
+                local lupgrade = GetUpgradeFromTechId(ltechId)
                 -- todo: support multiple upgrades at a time...?
                 --Log("Trying to upgrade " .. upgrade:GetDescription())
                 local upgradeTable = {}
-                table.insert(upgradeTable, upgrade)
-                player:CoEnableUpgrade(upgradeTable)
+                table.insert(upgradeTable, lupgrade)
+                marine:CoEnableUpgrade(upgradeTable)
             end
         }
     end

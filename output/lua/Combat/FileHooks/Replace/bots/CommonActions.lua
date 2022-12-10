@@ -324,16 +324,17 @@ function CreateExploreAction( weightIfTargetAcquired, moveToFunction )  --TODO A
 
                 local function CalcLocationWeight(loc)
 
-                    local numTargets = botExploreTargetsTally[loc] or 0
+                    local locGroup = GetLocationContention():GetLocationGroup(loc)
+                    local numTargets = (botExploreTargetsTally[loc] or 0) + locGroup:GetNumPlayersForTeamType(player:GetTeamNumber())
                     local depth = locGraph:GetDepthForExploreLocation(startLocation, loc)
-                    local isStrategic = GetLocationContention():GetLocationGroup(loc):GetHasStrategicEnts()
+                    local isStrategic = locGroup:GetHasStrategicEnts()
 
-                    local enterTime = Shared.GetTime() - locContention:GetLocationGroup(loc):GetStaleTimeForTeam(player:GetTeamType())
+                    local enterTime = Shared.GetTime() - locGroup:GetStaleTimeForTeam(player:GetTeamType())
 
                     return ( isStrategic and 1.2 or 1.0 )   -- prioritize exploring techpoints / rt rooms over exploring "empty" rooms
-                        * ( 1.0 / (numTargets + 1) )        -- prioritize entering rooms which have fewer bots exploring
-                        * ( 1.0 + (depth / 2.5) )             -- add a small amount of priority for rooms that are further down the chain
-                        * ( Clamp(enterTime / 20, 0.2, 1.0) ) -- full-weight if no teammates have been in the room in at least 20 seconds
+                        * ( 1.0 / (numTargets + 1) )            -- prioritize entering rooms which have fewer bots present
+                        * ( 1.0 + (depth / 2) )                 -- add a small amount of priority for rooms that are further down the chain
+                        * ( Clamp(enterTime / 20, 0.5, 1.0) )   -- full-weight if no teammates have been in the room in at least 20 seconds
 
                 end
 

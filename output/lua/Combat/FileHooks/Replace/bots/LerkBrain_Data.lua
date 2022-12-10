@@ -8,12 +8,14 @@ local kLerkBrainObjectiveTypesOrderScale = 100
 local kLerkRetreatStartEnergy = 0.35
 local kLerkRetreatStopEnergy = 0.65
 
-local kLerkRetreatStartHealth = 0.45
+local kLerkRetreatStartHealth = 0.6
 local kLerkRetreatStopHealth = 0.9
 
 local kLerkBrainMinSporeRateTime = 8
 local kLerkBrainNearbyEnemyThreshold = 16
 local kLerkBrainMaxSporeDist = 20 -- limit to within relevancy range
+
+local kLerkMaintainSpacing = 16 -- stand off from shotgunners this much
 
 local kLerkBrainPheromoneWeights =
 {
@@ -39,6 +41,53 @@ local function GetLerkActionBaselineWeight( actionId )
 
     --final action base-line weight value
     return actionWeightOrder * kLerkBrainActionTypesOrderScale
+end
+
+-- Find the closest path point to the 'from' point
+-- Assumes that there is always a positive gradient towards the closest point from the last point stored in the brain
+local function FindClosestPathPoint(brain, from, iter)
+
+    local currPoint = brain.savedPathPoints[iter]
+    local currLength = (currPoint - from):GetLengthXZ()
+
+    for i = iter, #brain.savedPathPoints, 1 do
+        local len = (brain.savedPathPoints[i] - from):GetLengthXZ()
+
+        if len < currLength then
+            iter = i
+            currLength = len
+        else
+            break
+        end
+    end
+
+    for i = iter, 0, -1 do
+        local len = (brain.savedPathPoints[i] - from):GetLengthXZ()
+
+        if len < currLength then
+            iter = i
+            currLength = len
+        else
+            break
+        end
+    end
+
+    return iter
+
+end
+
+local function FindBackwardsPathPoint(brain, to, targetLen, iter)
+
+    for i = iter, 1, -1 do
+        local len = (brain.savedPathPoints[i] - to):GetLengthXZ()
+
+        if len >= targetLen then
+            break
+        end
+    end
+
+    return iter
+
 end
 
 ------------------------------------------
@@ -72,6 +121,20 @@ local function PerformMove( alienPos, targetPos, bot, brain, move )
         end
 
         if not isEnteringTunnel then
+            local groundPoint = Pathing.GetClosestPoint(alienPos)
+            local groundHeight = groundPoint and (alienPos.y - groundPoint.y) or 1.0
+
+            if not bot:GetPlayer():GetIsOnGround() and groundHeight > 0.0 and groundHeight < 0.6 and not player.flapPressed then
+                move.commands = AddMoveCommand( move.commands, Move.Jump ) -- get off the ground
+            end
+
+            if not bot:GetPlayer():GetIsOnGround() and groundHeight > 2.1 then
+                move.commands = RemoveMoveCommand( move.commands, Move.Jump ) -- dive hard since we're too high in the air
+
+                if groundHeight > 2.5 then
+                    move.commands = AddMoveCommand( move.commands, Move.Crouch )
+                end
+            end
 
             if not bot:GetPlayer():GetIsOnGround() and player:GetVelocity():GetLength() / player:GetMaxSpeed() > flapSpeedPercent then
                 move.commands = AddMoveCommand( move.commands, Move.Jump ) -- gotta glide
@@ -94,6 +157,36 @@ local function PerformMove( alienPos, targetPos, bot, brain, move )
         move.commands = AddMoveCommand( move.commands, Move.Crouch )
     end
      
+end
+
+-- Fly backwards away from our current target along our approach vector
+local function PerformRetreatMove(eyePos, aimPos, bot, brain, target, move)
+
+    -- Fallback if we don't have our saved approach path data
+    if not brain.lastAttackEntityId == target:GetId() or not brain.savedPathPoints or #brain.savedPathPoints == 0 then
+        local keepDistanceDirection = (eyePos - aimPos):GetUnit()
+        if keepDistanceDirection.y > 0.1 then
+            keepDistanceDirection.y = 0.1
+        end
+
+        local keepDistancePos = target:GetOrigin() + (keepDistanceDirection * 16)
+        PerformMove(eyePos, keepDistancePos, bot, brain, move)
+        return
+    end
+
+    -- Walk backwards along our approach path until we find a location outside of shotgun range
+    local pathIter = FindBackwardsPathPoint(brain, target:GetOrigin(), 16, brain.savedPathPointsIt)
+    local pathPos = brain.savedPathPoints[pathIter]
+
+    local flyHeight = 3.0
+
+    -- determine how much ceiling head-room we have (somewhat expensive)
+    local trace = Shared.TraceRay(pathPos, pathPos + flyHeight, CollisionRep.Default, PhysicsMask.AllButPCsAndRagdolls, EntityFilterAll())
+    pathPos.y = pathPos.y + flyHeight * (trace.fraction) * 0.8
+
+    -- Maintain our distance to avoid getting splattered by shotguns
+    PerformMove(eyePos, pathPos, bot, brain, move)
+
 end
 
 -- Return an estimate of how well this bot is able to respond to a target based on its distance
@@ -232,6 +325,7 @@ local function PerformSporeHostiles( move, bot, brain, player, action )
 end
 
 local function PerformAttackEntity( eyePos, bestTarget, lastSeenPos, bot, brain, move )
+    PROFILE("LerkBrain - PerformAttackEntity")
 
     assert( bestTarget )
 
@@ -255,13 +349,7 @@ local function PerformAttackEntity( eyePos, bestTarget, lastSeenPos, bot, brain,
     if doFire then
 
         if anyShotguns then
-            local keepDistanceDirection = (eyePos - aimPos):GetUnit()
-            if keepDistanceDirection.y > 0.1 then
-                keepDistanceDirection.y = 0.1
-            end
-
-            local keepDistancePos = bestTarget:GetOrigin() + (keepDistanceDirection * 16)
-            PerformMove(eyePos, keepDistancePos, bot, brain, move)
+            PerformRetreatMove(eyePos, aimPos, bot, brain, bestTarget, move)
         else
             PerformMove(eyePos, aimPos, bot, brain, move)
         end
@@ -297,12 +385,55 @@ local function PerformAttackEntity( eyePos, bestTarget, lastSeenPos, bot, brain,
 end
 
 local function PerformAttack( eyePos, mem, bot, brain, move )
+    PROFILE("LerkBrain - PerformAttack")
 
     assert( mem )
 
     local target = Shared.GetEntity(mem.entId)
 
     if target ~= nil then
+        ---@type BotMotion
+        local motion = bot:GetMotion()
+
+        local from = eyePos
+        local to = Pathing.GetClosestPoint(mem.lastSeenPos)
+
+        if target:isa("Player") then
+
+            -- if we're too close to maintain a good standoff distance then start retreating back to the hive
+            if (to - from):GetLengthXZ() < kLerkMaintainSpacing then
+                local nearestHive = brain:GetSenses():Get("nearestHive")
+                from = nearestHive.hive and nearestHive.hive:GetOrigin() or from
+            end
+
+            local hasStandoffLen = mem.entId == brain.lastAttackEntityId
+                and brain.savedPathPoints and #brain.savedPathPoints > 0
+                and (to - brain.savedPathPoints[1]):GetLengthXZ() < kLerkMaintainSpacing
+
+            if not hasStandoffLen then
+
+                -- Generate our "attack path" to follow in reverse order when backing up
+                brain.savedPathPoints = PointArray()
+                brain.savedPathPointsIt = 1
+
+                local reachable = Pathing.GetPathPoints(from, to, brain.savedPathPoints)
+                if reachable and #brain.savedPathPoints > 0 then
+                    brain.lastAttackEntityId = mem.entId
+                end
+
+            else
+
+                -- Walk the path points forwards and backwards to update our approximate 'current' position on the path
+                brain.savedPathPointsIt = FindClosestPathPoint(brain, from, brain.savedPathPointsIt)
+
+            end
+
+        else
+
+            brain.savedPathPoints = nil
+            brain.savedPathPointsIt = nil
+
+        end
 
         PerformAttackEntity( eyePos, target, mem.lastSeenPos, bot, brain, move )
 
