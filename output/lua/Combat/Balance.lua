@@ -62,7 +62,8 @@ kCombatInkOnSighted = false
 ShadeInk.kShadeInkDisorientRadius = 9
 kCombatTauntCheckInterval = 4
 
-kSprintSpeedUpgradeScalar = 3.25
+kSprintSpeedUpgradeScalar = 1.35
+kFastSprintTime = 1.0
 
 kARCSpawnFrequency = 90
 

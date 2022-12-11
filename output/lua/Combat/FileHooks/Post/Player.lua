@@ -32,43 +32,17 @@ function Player:Buy()
     end
 end
 
--- check for FastReload
+-- check for Fast Reload
 function Player:GotFastReload()
 
-    if Server then
-		self:CheckCombatData()
-        return self.combatTable.hasFastReload
-    elseif Client then
-        local upgrades = self:GetPlayerUpgrades()
-        for _, upgradeTechId in ipairs(upgrades) do
-            if upgradeTechId == kTechId.AdvancedWeaponry then
-                return true
-            end
-        end
-        
-    end
-    
-    return false
+    return self.hasFastReload or false
 
 end
 
 -- check for Fast Sprint
 function Player:GotFastSprint()
 
-    if Server then
-		self:CheckCombatData()
-        return self.combatTable.hasFastSprint
-    elseif Client then
-        local upgrades = self:GetPlayerUpgrades()
-        for _, upgradeTechId in ipairs(upgrades) do
-            if upgradeTechId == kTechId.PhaseTech then
-                return true
-            end
-        end
-        
-    end
-    
-    return false
+    return self.hasFastSprint or false
 
 end
 
