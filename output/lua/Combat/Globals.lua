@@ -9,12 +9,12 @@ kMaxRelevancyDistance = 45 -- was 40
 -- Experience based values like avgXpAmount is still in ExperienceData
 
 -- Welcome Message that every player receives who joined our game
-combatModifiedMessage = "Contact ailmanki#8429 (Meteru) on Discord to report issues."
+combatModifiedMessage = "Welcome to Combat Mod! (This is not the default game mode.)"
 combatWelcomeMessage = {combatModifiedMessage,
-                        "Welcome to Combat Mod! (This is not the default gamemode.)",
-                        "This mod gives you levels and upgrade points, which you can see on",
-                        "your Experience Bar at the bottom of the screen.",
-                        "Get experience from kills and press B to spend points!"
+                        "This mod gives you levels and points, which you can see on your",
+                        "Experience Bar at the bottom of the screen.",
+                        "Get experience from kills and press B to upgrade!",
+                        "Contact ailmanki#8429 (Meteru) on Discord to report issues."
 }
 
 
@@ -74,11 +74,11 @@ kPropEffectTimer = 2
 
 -- Spawn protection
 kCombatSpawnProtectDelay = 0.1
-kCombatMarineSpawnProtectTime = 2
+kCombatMarineSpawnProtectTime = 3
 -- nano shield = spawn Protection
 kNanoShieldDuration = kCombatMarineSpawnProtectTime
 -- Alien time includes time spent in the egg.
-kCombatAlienSpawnProtectTime = kSkulkGestateTime + 2
+kCombatAlienSpawnProtectTime = kSkulkGestateTime + 3
 
 -- No eggs
 kAlienEggsPerHive = 0
@@ -88,13 +88,13 @@ kHiveCCHealRate = 0.3
 -- The rate at which players gain XP for healing... relative to damage dealt.
 kHealXpRate = 0.5
 -- Rate at which players gain XP for healing other players...
-kPlayerHealXpRate = 0.2
+kPlayerHealXpRate = 0.3
 
 -- kill hydras after some time if the owner isn't a gorge
 kHydraKillTime = 30
 
 -- Time delay for exo suits to power up.
-kExoPowerUpTime = 3
+kExoPowerUpTime = 2
 
 -- Override the costs of each of our entries.
 -- These won't take effect on the client side until we import this file into the client side mods
@@ -114,6 +114,12 @@ kDualMinigunCost = generalCost
 
 -- Used by alien buy menu
 kGorgeCost = 1
+if kProwlerCost then
+    kProwlerCost = 4
+end
+if kChangelingCost then
+    kChangelingCost = 3
+end
 kLerkCost = 3
 kFadeCost = 5
 kOnosCost = 7
@@ -136,7 +142,7 @@ kGorgeTunnelCost = generalCost
 kBabblerCost = 0
 
 -- Range for evolving to Onos/Exo from the Hive/CommandStation
-kTechRange = 20.0
+kTechRange = 25.0
 
 --set starting personal resources to 0
 kMarineInitialIndivRes = 0
@@ -158,3 +164,6 @@ if not kCombatCompMode then
     table.insert(kCombatAlienTierThreeTechIds, kTechId.Xenocide)
 end
 
+if kProwlerCost then
+    table.insert(kCombatAlienTierThreeTechIds, kTechId.AcidSpray)
+end

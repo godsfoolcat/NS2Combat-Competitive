@@ -1,19 +1,3 @@
--- Display a COMBAT MODE instead of commander name...
-local oldUpdate = GUIMarineHUD.Update
-function GUIMarineHUD:Update(deltaTime)
-    oldUpdate(self, deltaTime)
-
-	self.commanderName:DestroyAnimation("COMM_TEXT_WRITE")
-	self.commanderName:SetText("COMBAT MODE")
-	self.commanderName:SetColor(GUIMarineHUD.kActiveCommanderColor)
-    
-    self.teamResText:SetIsVisible(false)
-    
-end
-
-
-
-
 GUIMarineHUD.kUpgradePos = Vector(-GUIMarineHUD.kUpgradeSize.x - 16, -80, 0)
 
 local kTextOffsetX = -120
@@ -125,6 +109,13 @@ end
 local oldUpdate = GUIMarineHUD.Update
 function GUIMarineHUD:Update(deltaTime)
     oldUpdate(self, deltaTime)
+    -- Display a COMBAT MODE instead of commander name...
+    self.commanderName:DestroyAnimation("COMM_TEXT_WRITE")
+    self.commanderName:SetText("COMBAT MODE")
+    self.commanderName:SetColor(GUIMarineHUD.kActiveCommanderColor)
+    
+    self.teamResText:SetIsVisible(false)
+    
     if self.scanStatus then
         self.scanStatus:SetIsVisible(PlayerUI_GetHasScan())
         self.scanText:SetIsVisible(PlayerUI_GetHasScan())

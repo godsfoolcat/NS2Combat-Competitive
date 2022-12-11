@@ -131,7 +131,7 @@ GUIMarineBuyMenu.kEquippedWidth = GUIScale(128)
 GUIMarineBuyMenu.kEquippedColor = Color(0.6, 0.6, 0.6, 0.6)
 
 GUIMarineBuyMenu.kBackgroundWidth = GUIScale(600)
-GUIMarineBuyMenu.kBackgroundHeight = GUIScale(520)
+GUIMarineBuyMenu.kBackgroundHeight = GUIScale(700)
 -- We want the background graphic to look centered around the circle even though there is the part coming off to the right.
 GUIMarineBuyMenu.kBackgroundXOffset = GUIScale(0)
 
@@ -321,7 +321,6 @@ function GUIMarineBuyMenu:_InitializeEquipped()
         self.equipped = { }
     
     local equippedTechIds = self.player:GetPlayerUpgrades()
-    local selectorPosX = -GUIMarineBuyMenu.kSelectorSize.x + GUIMarineBuyMenu.kPadding
     
     for k, itemTechId in ipairs(equippedTechIds) do
     
@@ -593,11 +592,12 @@ end
 
 function GUIMarineBuyMenu:_InitializeContent()
 
+    local offsetDescription = GUIMarineBuyMenu.kSmallIconOffset_x * 1.5
     self.itemName = GUIManager:CreateTextItem()
     self.itemName:SetFontName(GUIMarineBuyMenu.kFont)
     self.itemName:SetFontIsBold(true)
     self.itemName:SetAnchor(GUIItem.Left, GUIItem.Top)
-    self.itemName:SetPosition(Vector((-GUIMarineBuyMenu.kSmallIconSize.x/ 2) + 80, GUIMarineBuyMenu.kIconTopOffset + (GUIMarineBuyMenu.kSmallIconSize.y) * (smallIconRows + 1.5) - GUIMarineBuyMenu.kSmallIconSize.y, 0))
+    self.itemName:SetPosition(Vector((-GUIMarineBuyMenu.kSmallIconSize.x/ 2) + offsetDescription, GUIMarineBuyMenu.kIconTopOffset + (GUIMarineBuyMenu.kSmallIconSize.y) * (smallIconRows + 1.5) - GUIMarineBuyMenu.kSmallIconSize.y, 0))
     self.itemName:SetTextAlignmentX(GUIItem.Align_Min)
     self.itemName:SetTextAlignmentY(GUIItem.Align_Min)
     self.itemName:SetColor(GUIMarineBuyMenu.kTextColor)
@@ -609,8 +609,8 @@ function GUIMarineBuyMenu:_InitializeContent()
     self.itemDescription:SetFontName(GUIMarineBuyMenu.kDescriptionFontName)
     --self.itemDescription:SetFontIsBold(true)
     self.itemDescription:SetFontSize(GUIMarineBuyMenu.kDescriptionFontSize)
-    self.itemDescription:SetAnchor(GUIItem.Middle, GUIItem.Top)
-    self.itemDescription:SetPosition(Vector((-GUIMarineBuyMenu.kSmallIconSize.x/ 2) - 200, GUIMarineBuyMenu.kIconTopOffset + (GUIMarineBuyMenu.kSmallIconSize.y) * (smallIconRows + 1.8) - GUIMarineBuyMenu.kSmallIconSize.y, 0))
+    self.itemDescription:SetAnchor(GUIItem.Left, GUIItem.Top)
+    self.itemDescription:SetPosition(Vector((-GUIMarineBuyMenu.kSmallIconSize.x/ 2) + offsetDescription, GUIMarineBuyMenu.kIconTopOffset + (GUIMarineBuyMenu.kSmallIconSize.y) * (smallIconRows + 2) - GUIMarineBuyMenu.kSmallIconSize.y, 0))
     self.itemDescription:SetTextAlignmentX(GUIItem.Align_Min)
     self.itemDescription:SetTextAlignmentY(GUIItem.Align_Min)
     self.itemDescription:SetColor(GUIMarineBuyMenu.kTextColor)
@@ -637,7 +637,7 @@ function GUIMarineBuyMenu:_UpdateContent(deltaTime)
         -- the discription text under the buttons
         self.itemName:SetText(GetDisplayNameForTechId(techId))
         self.itemDescription:SetText(CombatMarineBuy_GetWeaponDescription(techId))
-        self.itemDescription:SetTextClipped(true, GUIMarineBuyMenu.kItemDescriptionSize.x - 2* GUIMarineBuyMenu.kPadding, GUIMarineBuyMenu.kItemDescriptionSize.y - GUIMarineBuyMenu.kPadding)
+        self.itemDescription:SetTextClipped(true, GUIMarineBuyMenu.kItemDescriptionSize.x - 3* GUIMarineBuyMenu.kPadding, GUIMarineBuyMenu.kItemDescriptionSize.y - GUIMarineBuyMenu.kPadding)
 
     end
     
@@ -921,11 +921,11 @@ function GUIMarineBuyMenu:_GetSelectedUpgradesCost()
 
     local upgradeCosts = 0
     
-    for k, upgrade in ipairs(self.selectedUpgrades) do
+   -- for k, upgrade in ipairs(self.selectedUpgrades) do
     
         --upgradeCosts = upgradeCosts + MarineBuy_GetCosts(upgrade)
     
-    end
+    --end
     
     return upgradeCosts
     

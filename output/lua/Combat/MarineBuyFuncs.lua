@@ -52,10 +52,10 @@ function CombatMarineBuy_GUISortUps(upgradeList)
         "nextRow",
 
         -- 4, Class Upgrades
-        kTechId.Jetpack,     
+        kTechId.Jetpack,
         kTechId.DualMinigunExosuit,
         kTechId.DualRailgunExosuit,
-        kTechId.PhaseTech,     
+        kTechId.PhaseTech,
         "nextRow",
 
         -- 5, grenades

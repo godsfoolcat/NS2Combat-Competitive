@@ -1,6 +1,5 @@
 
 local kBackgroundColor = Color(0.0, 0.0, 0.0, 0.5)
-local kChatTextBuffer = 5
 local kChatTextPadding = 12
 local cutoffAmount = Client.GetOptionInteger("chat-wrap", 25)
 local kBackgroundTimeStartFade = 1.5

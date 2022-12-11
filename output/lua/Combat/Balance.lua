@@ -2,10 +2,16 @@
 -- Gestate Times
 kGestateTime = {}
 kGestateTime[kTechId.Skulk] = 1
-kGestateTime[kTechId.Gorge] = 3
-kGestateTime[kTechId.Lerk] = 4
-kGestateTime[kTechId.Fade] = 5
-kGestateTime[kTechId.Onos] = 8
+kGestateTime[kTechId.Gorge] = 2
+if kProwlerCost then
+	kGestateTime[kTechId.Prowler] = 2
+end
+if kChangelingCost then
+	kGestateTime[kTechId.Changeling] = 2
+end
+kGestateTime[kTechId.Lerk] = 3
+kGestateTime[kTechId.Fade] = 4
+kGestateTime[kTechId.Onos] = 5
 kSkulkGestateTime = kGestateTime[kTechId.Skulk]
 
 -- Power points
@@ -21,11 +27,11 @@ kGrenadeLauncherGrenadeDamage = 70 -- vanilla is 90, but we allow for damage upg
 kKillHydrasWhenNotGorge = true
 
 -- Ammo for mines
-kNumMines = 1
-kMaxNumMines = 3
+kNumMines = 2
+kMaxNumMines = 2
 
 -- number of handgrenaeds
-kMaxHandGrenades = 1
+kMaxHandGrenades = 2
 
 -- Health values
 -- Make the marine structures slightly less squishy...
@@ -43,14 +49,15 @@ kScanTimer = 14
 kResupplyTimer = 5
 kImprovedResupplyExtra = 5
 AmmoPack.kNumClips = 1
-kCatalystTimer = 14
+kCatalystTimer = 10
 
 -- Scan Duration, maybe we need to tune it a bit
 kScanDuration = 7
 
 -- Make these less "spammy"
 kEMPTimer = 30
-kInkTimer = 30
+kInkTimer = 20
+kCombatInkOnSighted = false
 -- reduce ink amount a bit
 ShadeInk.kShadeInkDisorientRadius = 9
 kCombatTauntCheckInterval = 4
@@ -58,6 +65,6 @@ kCombatTauntCheckInterval = 4
 kSprintSpeedUpgradeScalar = 1.35
 kFastSprintTime = 1.0
 
-kARCSpawnFrequency = 60
+kARCSpawnFrequency = 90
 
-kShadeInkDuration = 2.5
+kShadeInkDuration = 5

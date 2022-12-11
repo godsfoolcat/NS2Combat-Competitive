@@ -33,7 +33,7 @@ function Player:GetHasCombatUpgrade(upgradeId)
 
 	local hasUpgrade = false
 	if self.combatTable then
-		for index, upgrade in ipairs(self.combatTable.techtree) do
+		for _, upgrade in ipairs(self.combatTable.techtree) do
 			if (upgrade:GetId() == upgradeId) then
 				hasUpgrade = true
 				break
@@ -52,7 +52,7 @@ function Player:CoEnableUpgrade(upgrades)
 	local newPosition
 	-- support multiple upgrades
 	
-	for i, upgrade in ipairs(upgrades) do
+	for _, upgrade in ipairs(upgrades) do
 	
         local alreadyGotUpgrade = false
         local noRoom = false
@@ -66,10 +66,10 @@ function Player:CoEnableUpgrade(upgrades)
         local techId = upgrade:GetTechId()
         local neededLvl = upgrade:GetLevels()
         local team = upgrade:GetTeam()
-		local desc = upgrade:GetDescription()
+		--local desc = upgrade:GetDescription()
         
         -- Loop over the other items in the player's tech tree.
-        for number, entry in ipairs(self.combatTable.techtree) do
+        for _, entry in ipairs(self.combatTable.techtree) do
         
             -- does this up needs other ups??
             if requirements then
@@ -86,7 +86,7 @@ function Player:CoEnableUpgrade(upgrades)
 			
 			-- Check for whether we have a mutually exclusive upgrade here...
 			if upgrade:GetMutuallyExclusive() then
-				for i, mutuallyExclusiveUpgrade in ipairs(upgrade:GetMutuallyExclusive()) do
+				for _, mutuallyExclusiveUpgrade in ipairs(upgrade:GetMutuallyExclusive()) do
 					if entry:GetId() == mutuallyExclusiveUpgrade then
 						mutuallyExclusive = true
 						mutuallyExclusiveDescription = entry:GetDescription()
@@ -187,7 +187,7 @@ function Player:CoEnableUpgrade(upgrades)
             -- special treatment for aliens cause they will hatch with all upgrades)
             self:ApplyAllUpgrades(nil, validUpgrades)
         else
-            for i, upgrade in ipairs(validUpgrades) do				
+            for _, upgrade in ipairs(validUpgrades) do
 				-- Refund the mutually exclusive upgrades if we bought e.g. exo...
 				-- call it first before ApplyAllUpgrades, or the efundMutuallyExclusiveUpgrades function is not getting called right
 				self:RefundMutuallyExclusiveUpgrades(upgrade)				
@@ -204,7 +204,7 @@ function Player:RefundMutuallyExclusiveUpgrades(upgrade)
 	local removals = {}
 	for index, entry in ipairs(self.combatTable.techtree) do
 		if entry:GetMutuallyExclusive() then
-			for i, mutuallyExclusiveUpgrade in ipairs(entry:GetMutuallyExclusive()) do
+			for _, mutuallyExclusiveUpgrade in ipairs(entry:GetMutuallyExclusive()) do
 				if upgrade:GetId() == mutuallyExclusiveUpgrade then
 					table.insert(removals, index)
 					self:AddLvlFree(entry:GetLevels())
@@ -214,7 +214,7 @@ function Player:RefundMutuallyExclusiveUpgrades(upgrade)
 		end
 	end
 	
-	for index, indexToRemove in ipairs(removals) do
+	for _, indexToRemove in ipairs(removals) do
 		table.remove(self.combatTable.techtree, indexToRemove)
 	end
 end
@@ -231,11 +231,11 @@ function Player:ApplyAllUpgrades(upgradeTypes, singleUpgrade)
     
     if self:GetHasUps() then 
         if not singleUpgrade then
-            for index, upgradeType in ipairs(upgradeTypes) do
+            for _, upgradeType in ipairs(upgradeTypes) do
                 
                 local upgradesOfType = GetUpgradesOfType(techTree, upgradeType)
                 
-                for index, upgrade in ipairs(upgradesOfType) do
+                for _, upgrade in ipairs(upgradesOfType) do
                     -- Only apply the currently active lifeform upgrade...
                     if upgradeType == kCombatUpgradeTypes.Class then
                         if upgrade == self.combatTable.currentLifeForm then
@@ -258,7 +258,7 @@ function Player:ApplyAllUpgrades(upgradeTypes, singleUpgrade)
         else
             if type(singleUpgrade) == "table" then			
                 -- if its a table, special logic for aliens
-                for i, upgrade in ipairs(singleUpgrade) do
+                for _, upgrade in ipairs(singleUpgrade) do
                     upgrade:DoUpgrade(self)
                 end
 				
@@ -316,7 +316,7 @@ function Player:HasRoomToEvolve(techId)
 		
 	else
 		
-		for index = 1, 20 do
+		for _ = 1, 20 do
 			
 			local spawnPoint = GetRandomSpawnForCapsule(newAlienExtents.y, math.max(newAlienExtents.x, newAlienExtents.z), self:GetOrigin() + Vector(0,0.5,0), 0, 2, EntityFilterAll())
 
@@ -339,8 +339,6 @@ function Player:HasRoomToEvolve(techId)
 end
 	
 function Player:EvolveTo(newTechId)
-
-	local success = false
 	
 	if not newTechId then
         newTechId = kTechId.Skulk
@@ -350,7 +348,7 @@ function Player:EvolveTo(newTechId)
 	local healthScalar = self:GetHealth() / self:GetMaxHealth()
     local armorScalar = self:GetArmor() / self:GetMaxArmor()
     
-    local physicsMask = PhysicsMask.AllButPCsAndRagdolls
+    --local physicsMask = PhysicsMask.AllButPCsAndRagdolls
 	local position, success = self:HasRoomToEvolve(newTechId)
 	
 	
@@ -379,7 +377,7 @@ function Player:EvolveTo(newTechId)
 		local myTechTree = self:GetCombatTechTree()
 		local techIds = {}
 		table.insert(techIds, newTechId)
-		for index, upgrade in ipairs(myTechTree) do
+		for _, upgrade in ipairs(myTechTree) do
 			if (upgrade:GetType() == kCombatUpgradeTypes.Tech) then
 				table.insert(techIds, upgrade:GetTechId())
 			end
@@ -411,7 +409,7 @@ function Player:RefundUpgrades()
 	local upgrades = self.combatTable.techtree
 		
 	-- For each class, find the upgrade and remove it, and take away the correct amount of lvlfree.
-	for index, upgrade in ipairs(upgrades) do
+	for _, upgrade in ipairs(upgrades) do
 		if (upgrade:GetRefundUpgrade()) then
 			self:AddLvlFree(upgrade:GetLevels())
 			

@@ -37,14 +37,21 @@ function CombatMarineUpgrade:TeamSpecificLogic(player)
             
         else
             -- if this is a primary weapon, destroy the old one.
-            if GetIsPrimaryWeapon(kMapName) then
+			
+			if kRevolverCost and kMapName == Revolver.kMapName then
+				local weapon = player:GetWeaponInHUDSlot(2)
+				if (weapon) then
+					player:RemoveWeapon(weapon)
+					DestroyEntity(weapon)
+				end
+			elseif GetIsPrimaryWeapon(kMapName) then
                 local weapon = player:GetWeaponInHUDSlot(1)
                 if (weapon) then
                     player:RemoveWeapon(weapon)
                     DestroyEntity(weapon)
                 end
             end
-		
+			
             self:GiveItem(player)
         end
 	end
