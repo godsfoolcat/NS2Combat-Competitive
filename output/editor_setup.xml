@@ -401,8 +401,11 @@
 
 	
     <class name="harvester"> <parent>base_alien_structure</parent><model><file>models/alien/harvester/harvester.model</file></model></class>
-    <class name="hydra"> <parent>base_alien_structure</parent><model><file>models/alien/hydra/hydra.model</file></model></class>
+    <class name="tunnel"> <parent>base_alien_structure</parent><model><file>models/alien/tunnel/mouth.model</file></model></class>
+    <class name="drifter"> <parent>base_alien</parent><model><file>models/alien/drifter/drifter.model</file></model></class>
+    <class name="hydra"> <parent>base_alien</parent><model><file>models/alien/hydra/hydra.model</file></model></class>
     <class name="clog"> <parent>base_alien_structure</parent><model><file>models/alien/gorge/clog.model</file></model></class>
+    <class name="bilemine"> <parent>base_alien</parent><model><file>models/alien/babbler/babbler_egg.model</file></model></class>
     <class name="crag"> <parent>base_alien_structure</parent><model><file>models/alien/crag/crag.model</file></model></class>
     <class name="contamination"> <parent>base_alien_structure</parent><model><file>models/alien/contamination/contamination.model</file></model></class>
 	<class name="cyst"> <parent>base_alien_structure</parent><model><file>models/alien/cyst/cyst.model</file></model></class>
@@ -516,7 +519,7 @@
     </class>
     
     <!-- Skulk challenge finish line area -->
-    <class name="finish_line" placeable="true">
+    <class name="finish_line" placeable="true" alwaysPositiveScale="true">
 
         <model>
             <file>models/system/editor/location.model</file>
@@ -600,7 +603,7 @@
     </class>
 
     <!-- Trigger -->
-    <class name="trigger" placeable="false">
+    <class name="trigger" placeable="false" alwaysPositiveScale="true">
 
         <model>
             <file>models/system/editor/location.model</file>
@@ -618,7 +621,7 @@
     </class>
 
     <!-- Area Trigger -->
-    <class name="area_trigger" placeable="true">
+    <class name="area_trigger" placeable="true" alwaysPositiveScale="true">
 
         <model>
             <file>models/system/editor/location.model</file>
@@ -644,7 +647,7 @@
 	</class>
 
     <!-- Ladder -->
-    <class name="ladder">
+    <class name="ladder" alwaysPositiveScale="true">
         <model>
             <file>models/system/editor/ladder.model</file>
             <scale>scale</scale>
@@ -657,7 +660,7 @@
     </class>
 
     <!-- Tell overview what area to render out and the game what area is playable for commander -->
-    <class name="minimap_extents">
+    <class name="minimap_extents" alwaysPositiveScale="true">
     
 	<parent>trigger</parent>
 
@@ -666,7 +669,7 @@
     </class>
 
     <!-- Team join -->
-    <class name="team_join">
+    <class name="team_join" alwaysPositiveScale="true">
 
         <model>
             <file>models/system/editor/location.model</file>
@@ -690,7 +693,7 @@
     </class>
     
     <!-- Simple location -->
-    <class name="location" help="Enter name location which is shown to players" >
+    <class name="location" alwaysPositiveScale="true" help="Enter name location which is shown to players" >
 
 	<parent>trigger</parent>
 
@@ -699,7 +702,7 @@
     </class>
 
     <!-- Kill trigger -->
-    <class name="death_trigger">
+    <class name="death_trigger" alwaysPositiveScale="true">
     
         <model>
             <file>models/system/editor/death_trigger.model</file>
@@ -729,7 +732,7 @@
         </parameter>
     </class>
 	
-    <class name="teleport_trigger">
+    <class name="teleport_trigger" alwaysPositiveScale="true">
     
         <model>
             <file>models/system/editor/teleport_trigger.model</file>

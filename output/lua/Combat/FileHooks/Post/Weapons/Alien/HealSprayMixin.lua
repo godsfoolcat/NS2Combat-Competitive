@@ -23,7 +23,7 @@ end
 
 local function HealEntity(self, player, targetEntity)
 
-    local onEnemyTeam = (GetEnemyTeamNumber(player:GetTeamNumber()) == targetEntity:GetTeamNumber())
+    --local onEnemyTeam = (GetEnemyTeamNumber(player:GetTeamNumber()) == targetEntity:GetTeamNumber())
     
     -- Heal players by base amount plus a scaleable amount so it's effective vs. small and large targets.
     local health = kHealsprayDamage + targetEntity:GetMaxHealth() * kHealPlayerPercent / 100.0
@@ -71,24 +71,6 @@ local function HealEntity(self, player, targetEntity)
     --if Server and amountHealed > 0 then
     --    targetEntity:TriggerEffects("sprayed")
     --end
-    
-end
-
-local function PerformHealSpray(self, player)
-
-    for _, entity in ipairs(GetEntitiesInCone(self, player)) do
-    
-        if HasMixin(entity, "Team") then
-        
-            if entity:GetTeamNumber() == player:GetTeamNumber() then
-                HealEntity(self, player, entity)
-            elseif GetAreEnemies(entity, player) then
-                DamageEntity(self, player, entity)
-            end
-            
-        end
-        
-    end
     
 end
 

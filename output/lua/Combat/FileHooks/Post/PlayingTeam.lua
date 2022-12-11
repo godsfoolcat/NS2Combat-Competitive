@@ -7,8 +7,9 @@ function PlayingTeam:GetHasTeamLost()
         local numCommandStructures = self:GetNumAliveCommandStructures()
         
         if  ( numCommandStructures == 0 ) or
-            ( self:GetNumPlayers() == 0 ) then
-            
+            ( self:GetNumPlayers() == 0 ) or
+            self:GetHasConceded()  then
+
             return true
             
         end
@@ -214,7 +215,10 @@ function PlayingTeam:RespawnPlayer(player, origin, angles)
             local lookAtPoint = initialTechPoint:GetOrigin() + Vector(0, 5, 0)
             local toTechPoint = GetNormalizedVector(lookAtPoint - spawnOrigin)
             success = Team.RespawnPlayer(self, player, spawnOrigin, Angles(GetPitchFromVector(toTechPoint), GetYawFromVector(toTechPoint), 0))
-            
+
+            if success then
+                SetPlayerStartingLocation(player)
+            end
         else
         
 			player:SendDirectMessage("No room to spawn. You should spawn in the next wave instead!")
@@ -228,7 +232,7 @@ function PlayingTeam:RespawnPlayer(player, origin, angles)
     else
         Print("PlayingTeam:RespawnPlayer(): No initial tech point.")
     end
-    
+
     return success
 
 end

@@ -16,3 +16,9 @@ function GUIAlienHUD:Initialize()
 	self.teamResText:SetIsVisible(false)
 
 end
+local originalAlienReset= GUIAlienHUD.Reset
+function GUIAlienHUD:Reset()
+	originalAlienReset(self)
+
+	self.teamResText:SetIsVisible(false)
+end 

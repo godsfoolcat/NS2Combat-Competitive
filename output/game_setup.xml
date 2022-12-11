@@ -1,6 +1,7 @@
 <game>
 	<name>combat</name>
 	<description>NS2:Combat</description>
+	<icon>icons/combat_64x64.png</icon>
 	<client>lua/Client.lua</client>
 	<server>lua/Server.lua</server>
 	<predict>lua/Predict.lua</predict>
