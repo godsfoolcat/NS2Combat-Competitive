@@ -1,20 +1,33 @@
-NS2Combat: A Combat-style mod for Natural Selection 2
-=====================================================
+(Planned) changes from Meteru's (ailmanki) version:
+-------------------------------------------------------------------
 
-**How to play**
----------------
-1. Connect to a server running NS2 Combat Mode.
-2. Kill or assist others to gain XP.
-3. Deal damage to the enemy base to gain bonus XP.
-4. Use the buy menu to upgrade when you reach the next level.
+**(Globals.lua)**
 
-**Hosting your own server**
----------------------------
-1. Add the mod ID "8AE61F8F" to your MapCycle.json
+`kCombatRespawnTimer, kAlienWaveSpawnInterval` increase to 9
 
-**Contributing**
-----------------
-We welcome almost anyone who would like to contribute to the mod. Send us an email or a pull request if you would like to contribute code. Maps can be easily made and shared via the Steam Workshop. Ideas can be brought to us [here](http://www.unknownworlds.com/ns2/forums/index.php?showtopic=119151) on the Unknown Worlds modding forum, or [join the NS2 discord](https://discord.gg/k8UDYf3) and chat with us!
+`kCombatMarineSpawnProtectTime` reduce to 1.5
+
+`kCombatAlienSpawnProtectTime` to kSkulkGestateTime + 1.5
+
+`kHiveCCHealRate` increase to 0.6
+
+`kHealXpRate` decrease to 0.1
+
+`kGorgeCost` increase to 2
+
+`kLerkCost` increase to 4
+
+`kMarineInitialIndivRes, kAlienInitialIndivRes` not sure it works as upgrades scores, but if it does, then increase to 2, otherwise `kCombatStartUpgradePoints = 2` (ExperienceData.lua)
+
+**ExperienceData.lua**
+
+`mateXpAmount` decrease to 0.1
+
+`assistXpAmount` decrease to 0.5
+
+`baseXpForKill` increase to 120
+
+`XpValues[lifeform]` for Gorge, Lerk and Fade increase by 25 each
 
 **The following people brought Combat to life for your enjoyment!**
 -------------------------------------------------------------------
@@ -27,3 +40,4 @@ Soul_Rider
 relent
 Nin
 GhoulofGSG9
+Meteru
