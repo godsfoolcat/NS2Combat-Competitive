@@ -18,13 +18,13 @@ kCombatPenaltyLevel = 1
 avgXpAmount = 0.61
 
 -- how much % from the xp are the m8 nearby getting and the range
-mateXpAmount = 0.5
+mateXpAmount = 0.1
 
 -- range 35 was too big
 mateXpRange = 20
 
 -- how much % from the xp are the assisters are getting
-assistXpAmount = 1.0
+assistXpAmount = 0.5
 
 assistXPRange = 15
 assistLOSXPRange = 40
@@ -34,7 +34,7 @@ assistLOSXPRange = 40
 --      or set it to 0 to give all nearby assisters max XP
 assistPlayerRatio = 0.9
 
-baseXpForKill = 60
+baseXpForKill = 120
 -- extra bonus xp given per level difference
 extraXpPerLevelDiff = 30
 
@@ -43,15 +43,15 @@ extraXpPerLevelDiff = 30
 XpValues = {}
 XpValues["Marine"] = 0
 XpValues["Skulk"] = 0
-XpValues["Gorge"] = 25
+XpValues["Gorge"] = 50
 if kProwlerCost then
 	XpValues["Prowler"] = 50
 end
 if kChangelingCost then
 	XpValues["Changeling"] = 50
 end
-XpValues["Lerk"] = 50
-XpValues["Fade"] = 75
+XpValues["Lerk"] = 75
+XpValues["Fade"] = 100
 XpValues["Onos"] = 100
 XpValues["Exo"] = 100
 XpValues["Exosuit"] = 100
