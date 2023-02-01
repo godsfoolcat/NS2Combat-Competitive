@@ -9,14 +9,17 @@ kMaxRelevancyDistance = 45 -- was 40
 -- Experience based values like avgXpAmount is still in ExperienceData
 
 -- Welcome Message that every player receives who joined our game
-combatModifiedMessage = "Welcome to Combat Mod! (This is not the default game mode.)"
+if not kCombatCompMode then
+	combatModifiedMessage = "This is competitive version of Meteru's Combat fork made by CRaZyCAT"
+else
+	combatModifiedMessage = {"This is competitive version of Meteru's Combat fork made by CRaZyCAT",
+							             "Comp Mode set ON.",
+							             "You need to use chat command !forceroundstart to start a round."
+	}
 combatWelcomeMessage = {combatModifiedMessage,
-                        "This mod gives you levels and points, which you can see on your",
-                        "Experience Bar at the bottom of the screen.",
-                        "Get experience from kills and press B to upgrade!",
-                        "Contact ailmanki#8429 (Meteru) on Discord to report issues."
+                        "It differs from the original version by faster XP progression",
+                        "and slight alien nerf"
 }
-
 
 -- How often to send kills, deaths, nick name changes, etc. for scoreboard
 kScoreboardUpdateInterval = 2
