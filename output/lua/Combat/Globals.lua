@@ -37,8 +37,8 @@ kCombatAlienBuyMenuTotalAngle = 0.8
 kCombatAlienBuyMenuUpgradeButtonDistance = 210
 
 -- Set the respawn timer
-kCombatRespawnTimer = 6
-kAlienWaveSpawnInterval = 6
+kCombatRespawnTimer = 9
+kAlienWaveSpawnInterval = 9
 kCombatOvertimeRespawnTimer = 10
 
 -- Rebalancing Intervals (secs)
@@ -74,19 +74,19 @@ kPropEffectTimer = 2
 
 -- Spawn protection
 kCombatSpawnProtectDelay = 0.1
-kCombatMarineSpawnProtectTime = 3
+kCombatMarineSpawnProtectTime = 1.5
 -- nano shield = spawn Protection
 kNanoShieldDuration = kCombatMarineSpawnProtectTime
 -- Alien time includes time spent in the egg.
-kCombatAlienSpawnProtectTime = kSkulkGestateTime + 3
+kCombatAlienSpawnProtectTime = kSkulkGestateTime + 1.5
 
 -- No eggs
 kAlienEggsPerHive = 0
 
 -- The rate at which players heal the hive/cc should be multiplied by this ratio.
-kHiveCCHealRate = 0.3
+kHiveCCHealRate = 0.6
 -- The rate at which players gain XP for healing... relative to damage dealt.
-kHealXpRate = 0.5
+kHealXpRate = 0.1
 -- Rate at which players gain XP for healing other players...
 kPlayerHealXpRate = 0.3
 
@@ -113,14 +113,14 @@ kMinigunCost = generalCost
 kDualMinigunCost = generalCost
 
 -- Used by alien buy menu
-kGorgeCost = 1
+kGorgeCost = 2
 if kProwlerCost then
     kProwlerCost = 4
 end
 if kChangelingCost then
     kChangelingCost = 3
 end
-kLerkCost = 3
+kLerkCost = 4
 kFadeCost = 5
 kOnosCost = 7
 
