@@ -269,10 +269,15 @@ function NS2Gamerules:CheckGameStart()
 		end
 		
 		if (not waitingForConnecting and team1Players > 0 and team2Players > 0) or 
-		  (Shared.GetCheatsEnabled() and (team1Players > 0 or team2Players > 0)) then
-
-			if self:GetGameState() < kGameState.PreGame then
-                self:SetGameState(kGameState.PreGame)
+		   (Shared.GetCheatsEnabled() and (team1Players > 0 or team2Players > 0)) then
+			-- Prevent auto round start if CompMode set
+			if kCombatCompMode then
+				if self:GetGameState() >= kGameState.PreGame then
+					self:SetGameState(kGameState.WarmUp)
+				end
+			else
+				if self:GetGameState() < kGameState.PreGame then
+				   self:SetGameState(kGameState.PreGame)
 				
                 -- TODO: Put this on the client side so we can translate it
                 SendGlobalChatMessage(string.format("Game is starting in %s seconds!", self:GetPregameLength()))
